@@ -16,7 +16,7 @@ parser = argparse.ArgumentParser(
     description="Track caloric intake")
 
 parser.add_argument(
-    "-a", "--add", nargs="+", help="add a caloric entry ('food' calories protein)")
+    "-a", "--add", nargs="+", help="add a caloric entry ('STR food' INT calories INT protein)")
 parser.add_argument(
     "-l", "--list", help='list calorie info for the day', action="store_true")
 
