@@ -14,16 +14,12 @@ cursor = db.cursor()
 
 parser = argparse.ArgumentParser(
     description="Track caloric intake")
+
 parser.add_argument(
-    "-f", "--food", type=str, help='name of food consumed (e.g. eggs)')
-parser.add_argument(
-    "-c", "--calories", type=int, help='calories in food')
-parser.add_argument(
-    "-p", "--protein", type=int, help='protein in food')
+    "-a", "--add", nargs="+", help="add a caloric entry ('food' calories protein)")
 parser.add_argument(
     "-l", "--list", help='list calorie info for the day', action="store_true")
-parser.add_argument(
-    "-a", "--add", help='add a caloric entry', action="store_true")
+
 args = parser.parse_args()
 
 
@@ -78,13 +74,16 @@ if __name__ == '__main__':
         print(
             f"You've consumed {cals} calories and {protein}g protein for the day.")
     elif args.add:
-        entry = [
-            str(args.food),
-            int(args.calories),
-            int(args.protein),
-            str(time),
-            str(date)
-        ]
-        log_entry(entry)
+        if len(args.add) == 3 and str(args.add[1:]).isdigit:
+            entry = [
+                str(args.add[0]),
+                int(args.add[1]),
+                int(args.add[2]),
+                str(time),
+                str(date)
+            ]
+            log_entry(entry)
+        else:
+            os.system('./calcount.py -h')
     else:
         os.system('./calcount.py -h')
