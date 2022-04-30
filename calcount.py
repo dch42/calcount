@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """Track caloric intake"""
 
+from datetime import datetime
 import os
 import argparse
 import sqlite3
-from datetime import datetime
+import pyfiglet
+from rich.console import Console
+from rich.table import Table
 
 date = datetime.now().date()
 time = datetime.now().time().strftime('%H:%M:%S')
@@ -12,15 +15,109 @@ time = datetime.now().time().strftime('%H:%M:%S')
 db = sqlite3.connect("./calorie_log.db")
 cursor = db.cursor()
 
+# activity levels and associated multipliers for katch-mcardle formula
+activity = {
+    '1': ["sedentary (little or no exercise)", 1.2],
+    '2': ["light activity (light exercise/sports 1 to 3 days per week)", 1.375],
+    '3': ["moderate activity (moderate exercise/sports 3 to 5 days per week)", 1.55],
+    '4': ["very active (hard exercise/sports 6 to 7 days per week)", 1.725],
+    '5': ["extra active (very hard exercise/sports 6 to 7 days per week and physical job)", 1.9]
+}
+
+
+# define and parse args
 parser = argparse.ArgumentParser(
     description="Track caloric intake")
-
 parser.add_argument(
-    "-a", "--add", nargs="+", help="add a caloric entry ('STR food' INT calories INT protein)")
+    "--init", help="answer questions to calculate TDEE and set caloric goals", action="store_true")
+parser.add_argument(
+    "-a", "--add", nargs="+", help="add a caloric entry ['food name' calories protein]\
+        \nEx: 'Protein Bar' 190 16")
 parser.add_argument(
     "-l", "--list", help='list calorie info for the day', action="store_true")
-
 args = parser.parse_args()
+
+
+def logo():
+    """Print script logo"""
+    pyfiglet.print_figlet("CalCount")
+    print("\nKeep track of caloric intake.\n")
+
+# tdee/bmr functions
+
+
+def get_profile():
+    """Collect input for user profile and calculations"""
+    print("Please answer the following questions.\n\
+        They will be used to calculate your BMR, TDEE, \
+            and caloric deficit required to reach your weight loss goal.\n")
+    age = input("Please enter your age: ")
+    sex = input("Please enter your sex (m/f): ")
+    height = input("Please enter your height (feet.inches): ")
+    weight = input("Please enter your weight (lbs): ")
+    lose = input("Please enter desired weight loss per week (lbs): ")
+    height, weight = to_metric(float(height), float(weight))
+    return int(age), str(sex), float(height), float(weight), float(lose)
+
+
+def to_metric(height, weight):
+    """Convert imperial height/weight to metric"""
+    height = (((height//1)*12+((height % 1)*10))*2.54)
+    weight = weight*0.45359237
+    return height, weight
+
+
+def harris_benedict(weight, height, sex, age):
+    """Calculate BMR using Harris-Benedict equation"""
+    bmr = ((weight*10) + (6.25*height) + (5*age))
+    if sex == 'm':
+        bmr += 5
+    else:
+        bmr -= 161
+    return bmr
+
+
+def katch_mcardle(bmr):
+    """Calculate TDEE from BMR and activity multiplier"""
+    print("\nAverage Daily Activity Level:\n")
+    for k in activity:
+        print(k, ": ", activity[k][0])
+    print("\n")
+    multiplier = input(
+        "Please enter the option that most closely resembles your average activity level (1-5): ")
+    tdee = bmr*activity[multiplier][1]
+    return tdee
+
+
+def tdee_to_goal():
+    """Calculate caloric goal from TDEE"""
+    age, sex, height, weight, lose = get_profile()
+    print("\nCalculating basal metabolic rate (BMR)...")
+    bmr = harris_benedict(weight, height, sex, age)
+    print("Calculating total daily energy expenditure (TDEE)...")
+    tdee = katch_mcardle(bmr)
+    goal = tdee - (lose*500)
+    print(
+        f"\nResults:\n\n\tBMR: ~{int(bmr)} calories\n\tTDEE: ~{int(tdee)} calories\n")
+    print(
+        f"To lose {lose} lbs/week, you will need to consume {int(goal)} calories/day.\
+            \nGood luck!\n")
+    return lose, goal, time, date
+
+
+def commit_goal(goal):
+    """Commit goal data to db"""
+    cursor.execute("""CREATE TABLE IF NOT EXISTS goal_table(
+        Lose INTEGER,
+        Goal INTEGER,
+        Time TEXT,
+        Date TEXT)
+        """)
+    cursor.executemany(
+        "INSERT INTO goal_table VALUES (?,?,?,?)", (goal, ))
+    db.commit()
+
+# calorie log functions
 
 
 def log_entry(entry):
@@ -37,43 +134,65 @@ def log_entry(entry):
     db.commit()
 
 
-def print_daily_log():
-    cursor.execute(f"SELECT * FROM calorie_table WHERE Date='{date}'")
+def print_days():
+    """Print all caloric logs"""
+    # TODO integrate w/history query
+    with db:
+        cursor.execute("SELECT DISTINCT Date FROM calorie_table")
+        days = cursor.fetchall()
+        for day in days:
+            print_daily_log(day[0])
+
+
+def print_daily_log(day):
+    """Print caloric log for $day"""
+    # assign table layout
+    table = Table(title=f"Calorie Log: {day}")
+    table.add_column("Food", justify="right", no_wrap=True)
+    table.add_column("Calories", justify="right", no_wrap=True)
+    table.add_column("Protein", justify="right", no_wrap=True)
+    # fetch relevent data from db
+    cursor.execute(f"SELECT * FROM calorie_table WHERE Date='{day}'")
     rows = cursor.fetchall()
+    # iterate and print
     for row in rows:
-        print(f"{row[0]}: {row[1]}kcal, {row[2]}g protein")
+        table.add_row(f"{row[0]}", f"{row[1]}kcal", f"{row[2]}g")
+    console = Console()
+    console.print(table)
 
 
-def count_cals():
+def calc_cals(day):
+    """Calculate calorie and protein totals for $day"""
     with db:
-        cals = 0
-        cursor.execute(
-            f"SELECT Calories FROM calorie_table WHERE Date='{date}'")
-        rows = (cursor.fetchall())
-        for row in rows:
-            cals = cals + row[0]
-        return cals
+        info = []
+        for col in ['Calories', 'Protein']:
+            i = 0
+            cursor.execute(
+                f"SELECT {col} FROM calorie_table WHERE Date='{day}'")
+            rows = cursor.fetchall()
+            for row in rows:
+                i = i + row[0]
+            info.append(i)
+        cals, protein = info[0], info[1]
+        return cals, protein
 
 
-def count_protein():
+def fetch_goal():
+    """Fetch most recent caloric goals from db"""
     with db:
-        protein = 0
         cursor.execute(
-            f"SELECT Protein FROM calorie_table WHERE Date='{date}'")
-        rows = (cursor.fetchall())
-        for row in rows:
-            protein = protein + row[0]
-        return protein
+            "SELECT Lose, Goal FROM goal_table ORDER BY Date DESC LIMIT 1")
+        to_lose, goal = cursor.fetchone()
+        return to_lose, goal
+
+##################################################################################
 
 
 if __name__ == '__main__':
-    if args.list:
-        print_daily_log()
-        cals = count_cals()
-        protein = count_protein()
-        print(
-            f"You've consumed {cals} calories and {protein}g protein for the day.")
-    elif args.add:
+    if not args.add:
+        logo()
+    if args.add:
+        # TODO find better way to validate
         if len(args.add) == 3 and str(args.add[1:]).isdigit:
             entry = [
                 str(args.add[0]),
@@ -85,5 +204,13 @@ if __name__ == '__main__':
             log_entry(entry)
         else:
             os.system('./calcount.py -h')
-    else:
-        os.system('./calcount.py -h')
+    if args.init:
+        goal = tdee_to_goal()
+        commit_goal(goal)
+    if args.list:
+        print_daily_log(date)
+        cals, protein = calc_cals(date)
+        to_lose, goal = fetch_goal()
+        print(
+            f"You've consumed {cals} calories and {protein}g protein so far. \
+            \nYou have {int(goal)-int(cals)} calories remaining for the day.\n")
