@@ -36,7 +36,7 @@ This data can be overridden by repeating this process, as calculations are made 
 
 Invoking with `-a` or `--add` will add a food entry to the daily log.
 
-For example, to add a *protein bar with 190kcal and 16g protein* to the log and an *egg with 63kcal and 7g protein*, pass the data like so:
+For example, to add a *protein bar with 190kcal and 16g protein* and an *egg with 63kcal and 7g protein* to the log, pass the data like so:
 
 ~~~
 calcount -a 'Protein Bar' 190 16
