@@ -67,9 +67,6 @@ You've consumed 253 calories and 23g protein so far.
 You have 1560 calories remaining for the day.
 ~~~
 
-To view previous tables, invoke with -l *n*, where *n* is the number of tables to view. 
-
-For example, `calcount -l 3` will display tables for the past 3 days. 
 ### Options
 - `-h, --help`
     - show this help message and exit
