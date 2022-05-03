@@ -47,6 +47,10 @@ calcount -a egg 63 7
 
 The daily log can be viewed by invoking with `-l` or `--list`
 
+To view previous tables, invoke with -l *n*, where *n* is the number of tables to view. 
+
+For example, `calcount -l 3` will display tables for the past 3 days. 
+
 ~~~
 calcount -l
 ~~~
@@ -63,6 +67,9 @@ You've consumed 253 calories and 23g protein so far.
 You have 1560 calories remaining for the day.
 ~~~
 
+To view previous tables, invoke with -l *n*, where *n* is the number of tables to view. 
+
+For example, `calcount -l 3` will display tables for the past 3 days. 
 ### Options
 - `-h, --help`
     - show this help message and exit
