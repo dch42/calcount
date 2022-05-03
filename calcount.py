@@ -2,7 +2,6 @@
 """Track caloric intake"""
 
 from datetime import datetime
-import os
 import argparse
 import sqlite3
 import pyfiglet
@@ -15,7 +14,7 @@ time = datetime.now().time().strftime('%H:%M:%S')
 db = sqlite3.connect("./calorie_log.db")
 cursor = db.cursor()
 
-# activity levels and associated multipliers for katch-mcardle formula
+# activity levels and associated multipliers for tdee calc
 activity = {
     '1': ["sedentary (little or no exercise)", 1.2],
     '2': ["light activity (light exercise/sports 1 to 3 days per week)", 1.375],
@@ -31,17 +30,16 @@ parser = argparse.ArgumentParser(
 parser.add_argument(
     "--init", help="answer questions to calculate TDEE and set caloric goals", action="store_true")
 parser.add_argument(
-    "-a", "--add", nargs="+", help="add a caloric entry ['food name' calories protein]\
-        \nEx: 'Protein Bar' 190 16")
+    "-a", "--add", nargs=3, action="store", help="add a caloric entry ['food name' calories protein],\
+        \nEx: -a 'Protein Bar' 190 16")
 parser.add_argument(
-    "-l", "--list", help='list calorie info for the day', action="store_true")
+    "-l", "--list", nargs="?", const=1, help='list calorie info for the day')
 args = parser.parse_args()
 
 
 def logo():
     """Print script logo"""
     pyfiglet.print_figlet("CalCount")
-    print("\nKeep track of caloric intake.\n")
 
 # tdee/bmr functions
 
@@ -77,7 +75,7 @@ def harris_benedict(weight, height, sex, age):
     return bmr
 
 
-def katch_mcardle(bmr):
+def calc_tdee(bmr):
     """Calculate TDEE from BMR and activity multiplier"""
     print("\nAverage Daily Activity Level:\n")
     for k in activity:
@@ -95,7 +93,7 @@ def tdee_to_goal():
     print("\nCalculating basal metabolic rate (BMR)...")
     bmr = harris_benedict(weight, height, sex, age)
     print("Calculating total daily energy expenditure (TDEE)...")
-    tdee = katch_mcardle(bmr)
+    tdee = calc_tdee(bmr)
     goal = tdee - (lose*500)
     print(
         f"\nResults:\n\n\tBMR: ~{int(bmr)} calories\n\tTDEE: ~{int(tdee)} calories\n")
@@ -120,7 +118,29 @@ def commit_goal(goal):
 # calorie log functions
 
 
-def log_entry(entry):
+def fetch_goal():
+    """Fetch most recent caloric goals from db"""
+    with db:
+        cursor.execute(
+            "SELECT Lose, Goal FROM goal_table ORDER BY Date DESC LIMIT 1")
+        to_lose, goal = cursor.fetchone()
+        return to_lose, goal
+
+
+def validate_entry():
+    """Validate and build caloric log entry from args"""
+    if str(args.add[1:]).isdigit:
+        entry = [
+            str(args.add[0]),
+            int(args.add[1]),
+            int(args.add[2]),
+            str(time),
+            str(date)
+        ]
+        return entry
+
+
+def commit_entry(entry):
     """Insert calorie info into database"""
     cursor.execute("""CREATE TABLE IF NOT EXISTS calorie_table(
         Food_Name TEXT,
@@ -134,31 +154,33 @@ def log_entry(entry):
     db.commit()
 
 
-def print_days():
+def print_days(num):
     """Print all caloric logs"""
-    # TODO integrate w/history query
     with db:
-        cursor.execute("SELECT DISTINCT Date FROM calorie_table")
+        cursor.execute(
+            f"SELECT DISTINCT Date FROM calorie_table ORDER BY Date DESC LIMIT {num}")
         days = cursor.fetchall()
-        for day in days:
+        for day in days[::-1]:
             print_daily_log(day[0])
 
 
 def print_daily_log(day):
     """Print caloric log for $day"""
-    # assign table layout
-    table = Table(title=f"Calorie Log: {day}")
-    table.add_column("Food", justify="right", no_wrap=True)
-    table.add_column("Calories", justify="right", no_wrap=True)
-    table.add_column("Protein", justify="right", no_wrap=True)
-    # fetch relevent data from db
-    cursor.execute(f"SELECT * FROM calorie_table WHERE Date='{day}'")
+    cal_table = Table(title=f"Calorie Log: {day}")
+    cal_table.add_column("Food", justify="right", no_wrap=True)
+    cal_table.add_column("Calories", justify="right", no_wrap=True)
+    cal_table.add_column("Protein", justify="right", no_wrap=True)
+    cursor.execute(
+        f"SELECT Food_Name, Calories, Protein FROM calorie_table WHERE Date='{day}'")
     rows = cursor.fetchall()
-    # iterate and print
     for row in rows:
-        table.add_row(f"{row[0]}", f"{row[1]}kcal", f"{row[2]}g")
+        cal_table.add_row(f"{row[0]}", f"{row[1]}kcal", f"{row[2]}g")
     console = Console()
-    console.print(table)
+    console.print(cal_table)
+    cals, protein = calc_cals(day)
+    to_lose, goal = fetch_goal()
+    print(f"Total: {cals} calories / {protein}g protein \
+                \n{int(goal)-int(cals)} calories remaining\n")
 
 
 def calc_cals(day):
@@ -176,41 +198,20 @@ def calc_cals(day):
         cals, protein = info[0], info[1]
         return cals, protein
 
-
-def fetch_goal():
-    """Fetch most recent caloric goals from db"""
-    with db:
-        cursor.execute(
-            "SELECT Lose, Goal FROM goal_table ORDER BY Date DESC LIMIT 1")
-        to_lose, goal = cursor.fetchone()
-        return to_lose, goal
-
 ##################################################################################
 
 
 if __name__ == '__main__':
-    if not args.add:
-        logo()
+    # if not args.add:
+    #     logo()
     if args.add:
-        # TODO find better way to validate
-        if len(args.add) == 3 and str(args.add[1:]).isdigit:
-            entry = [
-                str(args.add[0]),
-                int(args.add[1]),
-                int(args.add[2]),
-                str(time),
-                str(date)
-            ]
-            log_entry(entry)
-        else:
-            os.system('./calcount.py -h')
+        entry = validate_entry()
+        commit_entry(entry)
     if args.init:
         goal = tdee_to_goal()
         commit_goal(goal)
     if args.list:
-        print_daily_log(date)
-        cals, protein = calc_cals(date)
-        to_lose, goal = fetch_goal()
-        print(
-            f"You've consumed {cals} calories and {protein}g protein so far. \
-            \nYou have {int(goal)-int(cals)} calories remaining for the day.\n")
+        if int(args.list) > 1:
+            print_days(int(args.list))
+        else:
+            print_daily_log(date)
