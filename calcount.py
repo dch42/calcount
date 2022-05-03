@@ -41,6 +41,19 @@ def logo():
     """Print script logo"""
     pyfiglet.print_figlet("CalCount")
 
+
+def validate_input(prompt, type):
+    """Validate user input"""
+    ok = False
+    while not ok:
+        val = input(prompt)
+        try:
+            test = type(val)
+            ok = True
+            return test
+        except ValueError as error:
+            print(f"ValueError: {error}")
+
 # tdee/bmr functions
 
 
@@ -49,13 +62,14 @@ def get_profile():
     print("Please answer the following questions.\n\
         They will be used to calculate your BMR, TDEE, \
             and caloric deficit required to reach your weight loss goal.\n")
-    age = input("Please enter your age: ")
-    sex = input("Please enter your sex (m/f): ")
-    height = input("Please enter your height (feet.inches): ")
-    weight = input("Please enter your weight (lbs): ")
-    lose = input("Please enter desired weight loss per week (lbs): ")
-    height, weight = to_metric(float(height), float(weight))
-    return int(age), str(sex), float(height), float(weight), float(lose)
+    age = validate_input("Please enter your age: ", int)
+    sex = validate_input("Please enter your sex (m/f): ", str)
+    height = validate_input("Please enter your height (feet.inches): ", float)
+    weight = validate_input("Please enter your weight (lbs): ", float)
+    lose = validate_input(
+        "Please enter desired weight loss per week (lbs): ", float)
+    height, weight = to_metric(height, weight)
+    return age, sex, height, weight, lose
 
 
 def to_metric(height, weight):
