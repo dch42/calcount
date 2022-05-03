@@ -33,7 +33,7 @@ parser.add_argument(
     "-a", "--add", nargs=3, action="store", help="add a caloric entry ['food name' calories protein],\
         \nEx: -a 'Protein Bar' 190 16")
 parser.add_argument(
-    "-l", "--list", nargs="?", const=1, help='list calorie info for the day')
+    "-l", "--list", nargs="?", const=1, help='list calorie info for day(s)')
 args = parser.parse_args()
 
 
@@ -83,7 +83,7 @@ def calc_tdee(bmr):
     print("\n")
     multiplier = input(
         "Please enter the option that most closely resembles your average activity level (1-5): ")
-    tdee = bmr*activity[multiplier][1]
+    tdee = bmr*float(activity[multiplier][1])
     return tdee
 
 
