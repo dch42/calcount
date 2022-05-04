@@ -8,7 +8,7 @@ Data persists using a SQLite database, `$HOME/.calorie_db`.
 ## Setup 🔧
 Clone the repo and change to directory:
 ~~~
-git clone https://github.com/dch42/calcount.git && cd cals
+git clone https://github.com/dch42/calcount.git && cd calcount
 ~~~
 
 ### Installation
