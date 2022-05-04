@@ -231,11 +231,15 @@ def commit_entry(entry):
 def print_days(num):
     """Print multiple caloric logs"""
     with db:
-        cursor.execute(
-            f"SELECT DISTINCT Date FROM calorie_table ORDER BY Date DESC LIMIT {num}")
-        days = cursor.fetchall()
-        for day in days[::-1]:
-            print_daily_log(day[0])
+        try:
+            cursor.execute(
+                f"SELECT DISTINCT Date FROM calorie_table ORDER BY Date DESC LIMIT {num}")
+            days = cursor.fetchall()
+            for day in days[::-1]:
+                print_daily_log(day[0])
+        except sqlite3.OperationalError as error:
+            print(f"\033[91m[ERROR]\033[00m {error}\n\tNo calorie data to display.\n\
+\tFirst, please enter a food item to the table: `cals -f 'food' cals protein`")
 
 
 def print_daily_log(day):
@@ -244,18 +248,24 @@ def print_daily_log(day):
     cal_table.add_column("Food", justify="right", no_wrap=True)
     cal_table.add_column("Calories", justify="right", no_wrap=True)
     cal_table.add_column("Protein", justify="right", no_wrap=True)
-    cursor.execute(
-        f"SELECT Food_Name, Calories, Protein FROM calorie_table WHERE Date='{day}'")
-    rows = cursor.fetchall()
-    for row in rows:
-        cal_table.add_row(f"{row[0]}", f"{row[1]}kcal", f"{row[2]}g")
-    print('\n')
-    console = Console()
-    console.print(cal_table)
-    cals, protein = calc_cals(day)
-    to_lose, goal = fetch_goal()
-    print(f"Total: {cals} calories / {protein}g protein \
-                \n{int(goal)-int(cals)} calories remaining\n")
+    try:
+        with db:
+            cursor.execute(
+                f"SELECT Food_Name, Calories, Protein FROM calorie_table WHERE Date='{day}'")
+            rows = cursor.fetchall()
+            for row in rows:
+                cal_table.add_row(f"{row[0]}", f"{row[1]}kcal", f"{row[2]}g")
+            print('\n')
+            console = Console()
+            console.print(cal_table)
+            cals, protein = calc_cals(day)
+            to_lose, goal = fetch_goal()
+            print(f"Total: {cals} calories / {protein}g protein \
+                        \n{int(goal)-int(cals)} calories remaining\n")
+    except sqlite3.OperationalError as error:
+        print(f"\033[91m[ERROR]\033[00m {error}\n\tNo calorie data to display.\n\
+\tFirst, please enter a food item to the table: `cals -f 'food' cals protein`")
+    
 
 
 def calc_cals(day):
