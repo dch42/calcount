@@ -1,8 +1,6 @@
 #!/bin/sh
 
-declare script_name="calcount"
-declare personal_bin="/Users/$USER/bin"
-declare hidden_dir="/Users/$USER/.$script_name"
+declare script_name="cals"
 declare cfg=".bash_profile"
 
 declare grn="\e[0;92m"
@@ -27,6 +25,11 @@ printf "\nAttempting installation of script '$script_name'...\n\n"
 
 echo "Installing requirements..."
 eval pip3 install -r requirements.txt
+
+case $OSTYPE in 
+    "darwin"*) declare personal_bin="/Users/$USER/bin" ;;
+    "linux-gnu"*) declare personal_bin="/home/$USER/bin" ;;
+esac
 
 [ -n $ZSH_VERSION ] && 
 cfg=".zprofile"
