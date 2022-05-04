@@ -45,8 +45,8 @@ Invoking with `-a` or `--add` will add a food entry to the daily log.
 For example, to add a *protein bar with 190kcal and 16g protein* and an *egg with 63kcal and 7g protein* to the log, pass the data like so:
 
 ~~~
-calcount -a 'Protein Bar' 190 16
-calcount -a egg 63 7
+cals -a 'Protein Bar' 190 16
+cals -a egg 63 7
 ~~~
 
 ### Viewing Logs
@@ -55,10 +55,10 @@ The daily log can be viewed by invoking with `-l` or `--list`
 
 To view previous tables, invoke with -l *n*, where *n* is the number of tables to view. 
 
-For example, `calcount -l 3` will display tables for the past 3 days. 
+For example, `cals -l 3` will display tables for the past 3 days. 
 
 ~~~
-calcount -l
+cals -l
 ~~~
 
 ~~~
@@ -74,7 +74,7 @@ Total: 253 calories / 23g protein
 ~~~
 
 ~~~
-calcount -l 2
+cals -l 2
 ~~~
 
 ~~~
