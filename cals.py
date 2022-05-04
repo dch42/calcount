@@ -48,7 +48,7 @@ def logo():
 
 
 def validate_input(prompt, type):
-    """Validate user input"""
+    """Ensure user input for $prompt matches datatype $type"""
     ok = False
     while not ok:
         val = input(prompt)
