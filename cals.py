@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Track caloric intake"""
+"""Simple script to track caloric intake and weight loss"""
 
+import os
 from datetime import datetime
 import argparse
 import sqlite3
@@ -8,10 +9,11 @@ import pyfiglet
 from rich.console import Console
 from rich.table import Table
 
+home = os.path.expanduser('~')
 date = datetime.now().date()
 time = datetime.now().time().strftime('%H:%M:%S')
 
-db = sqlite3.connect("./calorie_log.db")
+db = sqlite3.connect(f"{home}/.calorie_log.db")
 cursor = db.cursor()
 
 # activity levels and associated multipliers for tdee calc
@@ -34,6 +36,9 @@ parser.add_argument(
         \nEx: -a 'Protein Bar' 190 16")
 parser.add_argument(
     "-l", "--list", nargs="?", const=1, help='list calorie info for day(s)')
+parser.add_argument(
+    "-w", "--weight", nargs="?", type=float, const=1, help='input weight into weight log')
+
 args = parser.parse_args()
 
 
@@ -59,9 +64,7 @@ def validate_input(prompt, type):
 
 def get_profile():
     """Collect input for user profile and calculations"""
-    print("Please answer the following questions.\n\
-        They will be used to calculate your BMR, TDEE, \
-            and caloric deficit required to reach your weight loss goal.\n")
+    print("Please answer the following questions.\nThey will be used to calculate your BMR, TDEE, and caloric deficit required to reach your weight loss goal.\n")
     age = validate_input("Please enter your age: ", int)
     sex = validate_input("Please enter your sex (m/f): ", str)
     height = validate_input("Please enter your height (feet.inches): ", float)
@@ -129,6 +132,58 @@ def commit_goal(goal):
         "INSERT INTO goal_table VALUES (?,?,?,?)", (goal, ))
     db.commit()
 
+# weight log functions
+
+
+def commit_weight(weight):
+    """Commit weight data to db"""
+    entry = [weight,
+             time,
+             date
+             ]
+    cursor.execute("""CREATE TABLE IF NOT EXISTS weight_table(
+        Weight INTEGER,
+        Time TEXT,
+        Date TEXT)
+        """)
+    cursor.executemany(
+        "INSERT INTO weight_table VALUES (?,?,?)", (entry, ))
+    db.commit()
+
+
+def display_weight():
+    """Fetch weight data from db and display table with weight progress"""
+    weight_log = Table(title=f"Weight Log")
+    weight_log.add_column("Date", justify="right", no_wrap=True)
+    weight_log.add_column("Weight", justify="right", no_wrap=True)
+    with db:
+        cursor.execute(
+            "SELECT Date, Weight FROM weight_table ORDER BY Date DESC")
+        weights = cursor.fetchall()
+        for row in weights:
+            weight_log.add_row(f"{row[0]}", f"{row[1]}")
+        console = Console()
+        console.print(weight_log)
+        lost = calc_weight_loss()
+        if lost < 0:
+            print(f"\nRecorded gain: {abs(lost)} lbs\n")
+        else:
+            print(f"\nRecorded loss: {lost} lbs\n")
+
+
+def calc_weight_loss():
+    """Calculate difference between first recorded weight and last recorded weight"""
+    with db:
+        cursor.execute(
+            "SELECT Weight FROM weight_table ORDER BY Date, Time ASC LIMIT 1")
+        start_weight = cursor.fetchone()
+        cursor.execute(
+            "SELECT Weight FROM weight_table ORDER BY Date, Time DESC LIMIT 1")
+        current_weight = cursor.fetchone()
+        weight_loss = float(start_weight[0]) - float(current_weight[0])
+        return weight_loss
+
+
 # calorie log functions
 
 
@@ -136,7 +191,7 @@ def fetch_goal():
     """Fetch most recent caloric goals from db"""
     with db:
         cursor.execute(
-            "SELECT Lose, Goal FROM goal_table ORDER BY Date DESC LIMIT 1")
+            "SELECT Lose, Goal FROM goal_table ORDER BY Date")
         to_lose, goal = cursor.fetchone()
         return to_lose, goal
 
@@ -189,6 +244,7 @@ def print_daily_log(day):
     rows = cursor.fetchall()
     for row in rows:
         cal_table.add_row(f"{row[0]}", f"{row[1]}kcal", f"{row[2]}g")
+    print('\n')
     console = Console()
     console.print(cal_table)
     cals, protein = calc_cals(day)
@@ -218,12 +274,17 @@ def calc_cals(day):
 if __name__ == '__main__':
     # if not args.add:
     #     logo()
-    if args.add:
-        entry = validate_entry()
-        commit_entry(entry)
     if args.init:
         goal = tdee_to_goal()
         commit_goal(goal)
+    if args.weight:
+        if int(args.weight) > 1:
+            commit_weight(args.weight)
+        else:
+            display_weight()
+    if args.add:
+        entry = validate_entry()
+        commit_entry(entry)
     if args.list:
         if int(args.list) > 1:
             print_days(int(args.list))
