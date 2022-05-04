@@ -45,7 +45,7 @@ add_to_path
 printf "\nInstalling $script_name...\n"
 chmod +x ./${script_name}.py &&
 cp ./${script_name}.py $personal_bin/$script_name &&
-printf "${grn}[SUCCESS]${reset} Script $script_name installed at '$personal_bin/$script'!\n\n" ||
+printf "${grn}[SUCCESS]${reset} Script $script_name installed at '$personal_bin/$script_name'!\n\n" ||
 printf "${red}[ERROR]${reset} Something went wrong...\n" exit 1
 
 exit 0
