@@ -1,19 +1,25 @@
 # calcount
-A simple CLI calorie tracker.
+A simple CLI app to keep track of calories, protein, and weight loss/gain.
 
-Data persists using a SQLite database.
+Data persists using a SQLite database, `$HOME/.calorie_db`.
+
+*Currently only handles I/O in imperial units.*
 
 ## Setup 🔧
 Clone the repo and change to directory:
 ~~~
-git clone https://github.com/dch42/calcount.git && cd calcount
+git clone https://github.com/dch42/calcount.git && cd cals
 ~~~
 
-If running MacOS, add exec permissions and run `setup.sh`:
+### Installation
+If running MacOS or Linux, and using bash or zsh, `setup.sh` can be run to quickly make the script available in `$PATH`.
+
+Add exec permissions and run `setup.sh`:
 ~~~
 chmod +x ./setup.sh && ./setup.sh
 ~~~
-This will install dependencies and install the script as `calcount` in /Users/$USER/bin, as well as add to bash or zsh $PATH.
+This will install dependencies and install the script as `cals` in ~/bin, as well as add to bash or zsh `$PATH`.
+
 ## Usage
 
 ### Calculating TDEE/BMR/Daily Caloric Goal
@@ -21,7 +27,7 @@ This will install dependencies and install the script as `calcount` in /Users/$U
 On first run, invoke with `--init` to calculate TDEE and BMR, as well as set a weight loss goal:
 
 ~~~
-calcount --init
+cals --init
 ~~~
 
 The script will prompt user for data such as age, sex, height, weight, daily activity level, and a weight loss goal (lb/week). 
@@ -63,8 +69,52 @@ calcount -l
 │ Protein Bar│  190kcal │     16g │
 │ egg        │   63kcal │      7g │
 └────────────┴──────────┴─────────┘
-You've consumed 253 calories and 23g protein so far.             
-You have 1560 calories remaining for the day.
+Total: 253 calories / 23g protein          
+1560 calories remaining
+~~~
+
+~~~
+calcount -l 2
+~~~
+
+~~~
+      Calorie Log: 2022-04-28      
+┏━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━┓
+┃       Food ┃ Calories ┃ Protein ┃
+┡━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━┩
+│ Tofu Salad │  500kcal │      7g │
+│ Soup       │  190kcal │     15g │
+| Protein Bar|  190kcal |     20g |
+│ Beer       │  200kcal │      0g │
+└────────────┴──────────┴─────────┘
+Total: 1080 calories / 42g protein          
+733 calories remaining
+
+      Calorie Log: 2022-04-29      
+┏━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━┓
+┃       Food ┃ Calories ┃ Protein ┃
+┡━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━┩
+│ Protein Bar│  190kcal │     16g │
+│ egg        │   63kcal │      7g │
+└────────────┴──────────┴─────────┘
+Total: 253 calories / 23g protein          
+1560 calories remaining
+~~~
+
+### Logging and Viewing Weight Progress
+
+Invoke with `-w n`, where *n* is weight to be recorded.
+
+To add a weight entry of 148 lbs to the table:
+
+~~~
+cals -w 148
+~~~
+
+Invoking without arguments will print a table of weight entries and associated dates in descending order, as well as calculate and display total weight loss/gain.
+
+~~~
+cals -w
 ~~~
 
 ### Options
