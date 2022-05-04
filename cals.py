@@ -157,19 +157,23 @@ def display_weight():
     weight_log.add_column("Date", justify="right", no_wrap=True)
     weight_log.add_column("Weight", justify="right", no_wrap=True)
     with db:
-        cursor.execute(
-            "SELECT Date, Weight FROM weight_table ORDER BY Date DESC")
-        weights = cursor.fetchall()
-        for row in weights:
-            weight_log.add_row(f"{row[0]}", f"{row[1]}")
-        print('\n')
-        console = Console()
-        console.print(weight_log)
-        lost = calc_weight_loss()
-        if lost < 0:
-            print(f"\nRecorded gain: {abs(lost)} lbs\n")
-        else:
-            print(f"\nRecorded loss: {lost} lbs\n")
+        try:
+            cursor.execute(
+                "SELECT Date, Weight FROM weight_table ORDER BY Date DESC")
+            weights = cursor.fetchall()
+            for row in weights:
+                weight_log.add_row(f"{row[0]}", f"{row[1]}")
+            print('\n')
+            console = Console()
+            console.print(weight_log)
+            lost = calc_weight_loss()
+            if lost < 0:
+                print(f"\nRecorded gain: {abs(lost)} lbs\n")
+            else:
+                print(f"\nRecorded loss: {lost} lbs\n")
+        except sqlite3.OperationalError as error:
+            print(f"\033[91m[ERROR]\033[00m {error}\n\tNo weight data to display.\n\
+\tFirst, please enter a weight to the table: `cals -w weight`")
 
 
 def calc_weight_loss():
