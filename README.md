@@ -1,7 +1,7 @@
 # calcount
 A simple CLI app to keep track of calories, protein, and weight loss/gain.
 
-Data persists using a SQLite database, `$HOME/.calorie_db`.
+Data persists using a SQLite database, `$HOME/.calorie_log.db`.
 
 *Currently only handles I/O in imperial units.*
 
