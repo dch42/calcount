@@ -16,7 +16,7 @@ time = datetime.now().time().strftime('%H:%M:%S')
 db = sqlite3.connect(f"{home}/.calorie_log.db")
 cursor = db.cursor()
 
-# activity levels and associated multipliers for tdee calc
+# activity levels and multipliers for tdee
 activity = {
     '1': ["sedentary (little or no exercise)", 1.2],
     '2': ["light activity (light exercise/sports 1 to 3 days per week)", 1.375],
@@ -59,7 +59,7 @@ def validate_input(prompt, type):
         except ValueError as error:
             print(f"ValueError: {error}")
 
-# tdee/bmr functions
+# tdee/bmr
 
 
 def get_profile():
@@ -132,7 +132,7 @@ def commit_goal(goal):
         "INSERT INTO goal_table VALUES (?,?,?,?)", (goal, ))
     db.commit()
 
-# weight log functions
+# weight log
 
 
 def commit_weight(weight):
@@ -162,6 +162,7 @@ def display_weight():
         weights = cursor.fetchall()
         for row in weights:
             weight_log.add_row(f"{row[0]}", f"{row[1]}")
+        print('\n')
         console = Console()
         console.print(weight_log)
         lost = calc_weight_loss()
@@ -184,7 +185,7 @@ def calc_weight_loss():
         return weight_loss
 
 
-# calorie log functions
+# calorie log
 
 
 def fetch_goal():
@@ -197,7 +198,7 @@ def fetch_goal():
 
 
 def validate_entry():
-    """Validate and build caloric log entry from args"""
+    """Validate and build caloric log entry"""
     if str(args.add[1:]).isdigit:
         entry = [
             str(args.add[0]),
@@ -210,7 +211,7 @@ def validate_entry():
 
 
 def commit_entry(entry):
-    """Insert calorie info into database"""
+    """Insert food entry info into database"""
     cursor.execute("""CREATE TABLE IF NOT EXISTS calorie_table(
         Food_Name TEXT,
         Calories INTEGER,
@@ -224,7 +225,7 @@ def commit_entry(entry):
 
 
 def print_days(num):
-    """Print all caloric logs"""
+    """Print multiple caloric logs"""
     with db:
         cursor.execute(
             f"SELECT DISTINCT Date FROM calorie_table ORDER BY Date DESC LIMIT {num}")
@@ -268,13 +269,14 @@ def calc_cals(day):
         cals, protein = info[0], info[1]
         return cals, protein
 
-##################################################################################
+ # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+###############################################################
+ # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
 if __name__ == '__main__':
-    # if not args.add:
-    #     logo()
     if args.init:
+        logo()
         goal = tdee_to_goal()
         commit_goal(goal)
     if args.weight:
