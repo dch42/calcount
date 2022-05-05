@@ -77,20 +77,22 @@ This data can be overridden by repeating this process, as calculations are made 
 
 ### Adding Food to Log
 
-Invoking with `-a` or `--add` will add a food entry to the daily log.
+Invoke with `-a` to add a food entry to the daily log.
 
-For example, to add a *protein bar with 190kcal and 16g protein* and an *egg with 63kcal and 7g protein* to the log, pass the data like so:
-
+To add a *protein bar* with *190kcal* and *16g* protein:
 ~~~
 cals -a 'Protein Bar' 190 16
+~~~
+To add an *egg* with *63kcal* and *7g* protein:
+~~~
 cals -a egg 63 7
 ~~~
 
 ### Viewing Logs
 
-The daily log can be viewed by invoking with `-l` or `--list`
+The daily log can be viewed by invoking with `-l`.
 
-To view previous tables, invoke with -l *n*, where *n* is the number of tables to view. 
+To view previous tables, invoke with `-l n`, where *n* is the number of tables to view. 
 
 For example, `cals -l 3` will display tables for the past 3 days. 
 
@@ -144,7 +146,7 @@ To add a weight entry of 148 lbs to the table:
 cals -w 148
 ~~~
 
-Invoking without arguments will print a table of weight entries and associated dates in descending order, as well as calculate and display total weight loss/gain.
+Invoking without arguments will print a table of weight entries/dates, as well as calculate and display total weight loss/gain.
 
 ~~~
 $ cals -w
