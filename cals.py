@@ -47,17 +47,17 @@ def logo():
     pyfiglet.print_figlet("CalCount")
 
 
-def validate_input(prompt, type):
+def validate_input(prompt, dtype):
     """Ensure user input for $prompt matches datatype $type"""
-    ok = False
-    while not ok:
+    good = False
+    while not good:
         val = input(prompt)
         try:
-            test = type(val)
-            ok = True
+            test = dtype(val)
+            good = True
             return test
         except ValueError as error:
-            print(f"ValueError: {error}")
+            print(f"Please ensure input matches datatype `{dtype}`.\n{error}")
 
 # tdee/bmr
 
@@ -265,7 +265,6 @@ def print_daily_log(day):
     except sqlite3.OperationalError as error:
         print(f"\033[91m[ERROR]\033[00m {error}\n\tNo calorie data to display.\n\
 \tFirst, please enter a food item to the table: `cals -f 'food' cals protein`")
-    
 
 
 def calc_cals(day):
