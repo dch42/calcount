@@ -28,16 +28,25 @@ activity = {
 
 # define and parse args
 parser = argparse.ArgumentParser(
-    description="Track caloric intake")
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    description="cals -- track calories, protein, and weight loss/gain",
+    epilog=f"""Usage examples:\n
+Add bar with 190kcal and 16g protein:
+\tcals -a 'Protein Bar' 190 16\n
+Print calorie log tables for past 3 days:
+\tcals -l 3\n
+Add a weight record of 142.7 to the table:
+\tcals -w 142.7\n
+Display weight log and total weight loss/gain:
+\tcals -w""")
 parser.add_argument(
-    "--init", help="answer questions to calculate TDEE and set caloric goals", action="store_true")
+    "--init", help="calculate TDEE and set weekly weight loss goal", action="store_true")
 parser.add_argument(
-    "-a", "--add", nargs=3, action="store", help="add a caloric entry ['food name' calories protein],\
-        \nEx: -a 'Protein Bar' 190 16")
+    "-a", nargs=3, action="store", help="add a caloric entry ['food name' calories protein]")
 parser.add_argument(
-    "-l", "--list", nargs="?", const=1, help='list calorie info for day(s)')
+    "-l", nargs="?", const=1, help='list calorie info for day(s)')
 parser.add_argument(
-    "-w", "--weight", nargs="?", type=float, const=1, help='input weight into weight log')
+    "-w", nargs="?", type=float, const=1, help='input weight into weight log')
 
 args = parser.parse_args()
 
@@ -289,16 +298,16 @@ if __name__ == '__main__':
         logo()
         goal = tdee_to_goal()
         commit_goal(goal)
-    if args.weight:
-        if int(args.weight) > 1:
-            commit_weight(args.weight)
+    if args.w:
+        if int(args.w) > 1:
+            commit_weight(args.w)
         else:
             display_weight()
-    if args.add:
+    if args.a:
         entry = validate_entry()
         commit_entry(entry)
-    if args.list:
-        if int(args.list) > 1:
-            print_days(int(args.list))
+    if args.l:
+        if int(args.l) > 1:
+            print_days(int(args.l))
         else:
             print_daily_log(date)
