@@ -33,7 +33,7 @@ parser = argparse.ArgumentParser(
     epilog=f"""Usage examples:\n
 Add bar with 190kcal and 16g protein:
 \tcals -a 'Protein Bar' 190 16\n
-Remove the previous entry:
+Remove the entry from previous example:
 \tcals -r 'Protein Bar' 190 16\n
 Print calorie log tables for past 3 days:
 \tcals -l 3\n
