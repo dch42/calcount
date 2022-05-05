@@ -54,6 +54,7 @@ args = parser.parse_args()
 def logo():
     """Print script logo"""
     pyfiglet.print_figlet("CalCount")
+    print("Keep track of calories, protein, and weight loss/gain.\n")
 
 
 def validate_input(prompt, dtype):
