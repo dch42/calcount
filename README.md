@@ -33,7 +33,7 @@ This will install dependencies and install the script as `cals` in ~/bin, as wel
 ## Usage
 
 ~~~
-usage: cals.py [-h] [--init] [-a A A A] [-l [L]] [-w [W]]
+usage: cals [-h] [--init] [-a A A A] [-r R R R] [-l [L]] [-w [W]]
 
 cals -- track calories, protein, and weight loss/gain
 
@@ -41,6 +41,7 @@ optional arguments:
   -h, --help  show this help message and exit
   --init      calculate TDEE and set weekly weight loss goal
   -a A A A    add a caloric entry ['food name' calories protein]
+  -r R R R    remove a caloric entry ['food name' calories protein]
   -l [L]      list calorie info for day(s)
   -w [W]      input weight into weight log
 
@@ -48,6 +49,9 @@ Usage examples:
 
 Add bar with 190kcal and 16g protein:
 	cals -a 'Protein Bar' 190 16
+
+Remove the entry from previous example:
+	cals -r 'Protein Bar' 190 16
 
 Print calorie log tables for past 3 days:
 	cals -l 3
