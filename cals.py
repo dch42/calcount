@@ -193,9 +193,9 @@ def fetch_goal():
     """Fetch most recent caloric goals from db"""
     with db:
         cursor.execute(
-            "SELECT Lose, Goal FROM goal_table ORDER BY Date")
-        to_lose, goal = cursor.fetchone()
-        return to_lose, goal
+            "SELECT Goal FROM goal_table ORDER BY Date")
+        goal = cursor.fetchone()[0]
+        return goal
 
 
 def validate_entry():
@@ -256,9 +256,9 @@ def print_daily_log(day):
             console = Console()
             console.print(cal_table)
             cals, protein = calc_cals(day)
-            to_lose, goal = fetch_goal()
+            goal = fetch_goal()
             print(f"Total: {cals} calories / {protein}g protein \
-                        \n{int(goal)-int(cals)} calories remaining\n")
+                        \n{int(goal-cals)} calories remaining\n")
     except sqlite3.OperationalError as error:
         print(f"\033[91m[ERROR]\033[00m {error}\n\tNo calorie data to display.\n\
 \tFirst, please enter a food item to the table: `cals -f 'food' cals protein`")
