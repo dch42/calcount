@@ -1,4 +1,12 @@
 # calcount
+~~~
+  ____      _  ____                  _   
+ / ___|__ _| |/ ___|___  _   _ _ __ | |_ 
+| |   / _` | | |   / _ \| | | | '_ \| __|
+| |__| (_| | | |__| (_) | |_| | | | | |_ 
+ \____\__,_|_|\____\___/ \__,_|_| |_|\__|
+                                         
+~~~
 A simple CLI app to keep track of calories, protein, and weight loss/gain.
 
 Data persists using a SQLite database, `$HOME/.calorie_log.db`.
