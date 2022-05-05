@@ -33,6 +33,8 @@ parser = argparse.ArgumentParser(
     epilog=f"""Usage examples:\n
 Add bar with 190kcal and 16g protein:
 \tcals -a 'Protein Bar' 190 16\n
+Remove the previous entry:
+\tcals -r 'Protein Bar' 190 16\n
 Print calorie log tables for past 3 days:
 \tcals -l 3\n
 Add a weight record of 142.7 to the table:
@@ -43,6 +45,8 @@ parser.add_argument(
     "--init", help="calculate TDEE and set weekly weight loss goal", action="store_true")
 parser.add_argument(
     "-a", nargs=3, action="store", help="add a caloric entry ['food name' calories protein]")
+parser.add_argument(
+    "-r", nargs=3, action="store", help="remove a caloric entry ['food name' calories protein]")
 parser.add_argument(
     "-l", nargs="?", const=1, help='list calorie info for day(s)')
 parser.add_argument(
@@ -209,13 +213,13 @@ def fetch_goal():
         return goal
 
 
-def validate_entry():
-    """Validate and build caloric log entry"""
-    if str(args.add[1:]).isdigit:
+def validate_entry(args):
+    """Validate and build caloric log entry for addition or removal"""
+    if str(args[1:]).isdigit:
         entry = [
-            str(args.add[0]),
-            int(args.add[1]),
-            int(args.add[2]),
+            str(args[0]),
+            int(args[1]),
+            int(args[2]),
             str(time),
             str(date)
         ]
@@ -290,9 +294,16 @@ def calc_cals(day):
         cals, protein = info[0], info[1]
         return cals, protein
 
- # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-###############################################################
- # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+def remove_entry(entry):
+    """Remove caloric entry from db"""
+    food, calories, protein = entry[0], entry[1], entry[2]
+    with db:
+        try:
+            cursor.execute(
+                f"DELETE FROM calorie_table WHERE Date='{date}' AND Food_Name='{food}' AND Calories='{calories}' AND Protein='{protein}'")
+        except sqlite3.OperationalError as error:
+            print(f"\033[91m[ERROR]\033[00m {error}")
 
 
 if __name__ == '__main__':
@@ -306,8 +317,12 @@ if __name__ == '__main__':
         else:
             display_weight()
     if args.a:
-        entry = validate_entry()
+        entry = validate_entry(args.a)
         commit_entry(entry)
+    if args.r:
+        entry = validate_entry(args.r)
+        remove_entry(entry)
+
     if args.l:
         if int(args.l) > 1:
             print_days(int(args.l))
