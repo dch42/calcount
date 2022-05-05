@@ -9,7 +9,7 @@
 Keep track of calories, protein, and weight loss/gain.
 ~~~
 
-CalCount (`cals`) is a simple python3 CLI app to track calories, protein, and weight progress.
+CalCount (cals) is a simple python3 CLI app to track calories, protein, and weight progress.
 
 Data persists using a SQLite database, `$HOME/.calorie_log.db`.
 
