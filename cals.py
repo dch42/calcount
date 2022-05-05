@@ -159,14 +159,14 @@ def display_weight():
     with db:
         try:
             cursor.execute(
-                "SELECT Date, Weight FROM weight_table ORDER BY Date DESC")
+                "SELECT Date, Weight FROM weight_table ORDER BY Date ASC")
             weights = cursor.fetchall()
             for row in weights:
                 weight_log.add_row(f"{row[0]}", f"{row[1]}")
             print('\n')
             console = Console()
             console.print(weight_log)
-            lost = calc_weight_loss()
+            lost = round(calc_weight_loss(), 2)
             if lost < 0:
                 print(f"\nRecorded gain: {abs(lost)} lbs\n")
             else:
@@ -180,12 +180,9 @@ def calc_weight_loss():
     """Calculate difference between first recorded weight and last recorded weight"""
     with db:
         cursor.execute(
-            "SELECT Weight FROM weight_table ORDER BY Date, Time ASC LIMIT 1")
-        start_weight = cursor.fetchone()
-        cursor.execute(
-            "SELECT Weight FROM weight_table ORDER BY Date, Time DESC LIMIT 1")
-        current_weight = cursor.fetchone()
-        weight_loss = float(start_weight[0]) - float(current_weight[0])
+            "SELECT Weight FROM weight_table ORDER BY Date, Time")
+        weights = cursor.fetchall()
+        weight_loss = weights[0][0] - weights[-1][0]
         return weight_loss
 
 
