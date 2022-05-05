@@ -6,9 +6,8 @@
 | |__| (_| | | |__| (_) | |_| | | | | |_ 
  \____\__,_|_|\____\___/ \__,_|_| |_|\__|
                                          
-A simple CLI app to keep track of calories, protein, and weight loss/gain.
+Keep track of calories, protein, and weight loss/gain.
 ~~~
-CLI app to keep track of calories, protein, and weight loss/gain.
 
 Data persists using a SQLite database, `$HOME/.calorie_log.db`.
 
