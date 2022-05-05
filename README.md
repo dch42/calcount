@@ -22,6 +22,33 @@ This will install dependencies and install the script as `cals` in ~/bin, as wel
 
 ## Usage
 
+~~~
+usage: cals.py [-h] [--init] [-a A A A] [-l [L]] [-w [W]]
+
+cals -- track calories, protein, and weight loss/gain
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --init      calculate TDEE and set weekly weight loss goal
+  -a A A A    add a caloric entry ['food name' calories protein]
+  -l [L]      list calorie info for day(s)
+  -w [W]      input weight into weight log
+
+Usage examples:
+
+Add bar with 190kcal and 16g protein:
+	cals -a 'Protein Bar' 190 16
+
+Print calorie log tables for past 3 days:
+	cals -l 3
+
+Add a weight record of 142.7 to the table:
+	cals -w 142.7
+
+Display weight log and total weight loss/gain:
+	cals -w
+~~~
+
 ### Calculating TDEE/BMR/Daily Caloric Goal
 
 On first run, invoke with `--init` to calculate TDEE and BMR, as well as set a weight loss goal:
@@ -30,7 +57,7 @@ On first run, invoke with `--init` to calculate TDEE and BMR, as well as set a w
 cals --init
 ~~~
 
-The script will prompt user for data such as age, sex, height, weight, daily activity level, and a weight loss goal (lb/week). 
+The script will prompt user for data such as age, sex, height, weight, daily activity level, and a weight loss goal (lb/week). Currently only handles imperial unit input. 
 
 This information is used to calculate BMR using the [Harris-Benedict Equation](https://en.wikipedia.org/wiki/Harris%E2%80%93Benedict_equation) and TDEE using activity multipliers. 
 
@@ -117,12 +144,14 @@ Invoking without arguments will print a table of weight entries and associated d
 cals -w
 ~~~
 
-### Options
-- `-h, --help`
-    - show this help message and exit
-- `--init`
-    - initialize TDEE/BMR and set weight loss goal
-- `-a, --add ['food' kcal protein]` str int int
-    - add a caloric entry to the log
-- `-l, --list`
-    - print a table with daily caloric data 
+~~~
+      Weight Log       
+┏━━━━━━━━━━━━┳━━━━━━━━┓
+┃       Date ┃ Weight ┃
+┡━━━━━━━━━━━━╇━━━━━━━━┩
+│ 2022-05-03 │    149 │
+│ 2022-05-04 │  148.3 │
+└────────────┴────────┘
+
+Recorded loss: 0.7 lbs
+~~~
