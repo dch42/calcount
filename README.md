@@ -9,6 +9,8 @@
 Keep track of calories, protein, and weight loss/gain.
 ~~~
 
+CalCount (`cals`) is a simple python3 CLI app to track calories, protein, and weight progress.
+
 Data persists using a SQLite database, `$HOME/.calorie_log.db`.
 
 *Currently only handles I/O in imperial units.*
@@ -93,10 +95,8 @@ To view previous tables, invoke with -l *n*, where *n* is the number of tables t
 For example, `cals -l 3` will display tables for the past 3 days. 
 
 ~~~
-cals -l
-~~~
+$ cals -l
 
-~~~
       Calorie Log: 2022-04-29      
 ┏━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━┓
 ┃       Food ┃ Calories ┃ Protein ┃
@@ -109,10 +109,8 @@ Total: 253 calories / 23g protein
 ~~~
 
 ~~~
-cals -l 2
-~~~
+$ cals -l 2
 
-~~~
       Calorie Log: 2022-04-28      
 ┏━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━┓
 ┃       Food ┃ Calories ┃ Protein ┃
@@ -149,10 +147,8 @@ cals -w 148
 Invoking without arguments will print a table of weight entries and associated dates in descending order, as well as calculate and display total weight loss/gain.
 
 ~~~
-cals -w
-~~~
+$ cals -w
 
-~~~
       Weight Log       
 ┏━━━━━━━━━━━━┳━━━━━━━━┓
 ┃       Date ┃ Weight ┃
