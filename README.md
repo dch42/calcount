@@ -92,6 +92,41 @@ To add an *egg* with *63kcal* and *7g* protein:
 cals -a egg 63 7
 ~~~
 
+#### Removing Food from Log
+
+To remove an *egg* with *63kcal* and *7g* protein:
+~~~
+cals -r egg 63 7
+~~~
+
+***Caution***, *if there are multiple entries matching the criteria on the daily log, this will delete those duplicates as well.*
+
+For example, given the following daily log:
+
+~~~
+    Calorie Log: 2022-05-04     
+┏━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━┓
+┃    Food ┃ Calories ┃ Protein ┃
+┡━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━┩
+│  Olives │   50kcal │      0g │
+│ fabcake │  420kcal │     20g │
+│    dupe │   10kcal │     10g │
+│    dupe │   10kcal │     10g │
+└─────────┴──────────┴─────────┘
+~~~
+
+`cals -r dupe 10 10` will yield:
+
+~~~
+    Calorie Log: 2022-05-04     
+┏━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━┓
+┃    Food ┃ Calories ┃ Protein ┃
+┡━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━┩
+│  Olives │   50kcal │      0g │
+│ fabcake │  420kcal │     20g │
+└─────────┴──────────┴─────────┘
+~~~
+
 ### Viewing Logs
 
 The daily log can be viewed by invoking with `-l`.
