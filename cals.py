@@ -79,6 +79,7 @@ def get_profile():
     sex = validate_input("Please enter your sex (m/f): ", str)
     height = validate_input("Please enter your height (feet.inches): ", float)
     weight = validate_input("Please enter your weight (lbs): ", float)
+    commit_weight(weight)
     lose = validate_input(
         "Please enter desired weight loss per week (lbs): ", float)
     height, weight = to_metric(height, weight)
