@@ -13,7 +13,7 @@ CalCount (cals) is a simple python3 CLI app to track calories, protein, and weig
 
 Data persists using a SQLite database, `$HOME/.calorie_log.db`.
 
-*Currently only handles I/O in imperial units.*
+*Currently only handles imperial units.*
 
 ## Setup 🔧
 Clone the repo and change to directory:
