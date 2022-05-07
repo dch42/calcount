@@ -95,8 +95,8 @@ and caloric deficit required to reach your weight loss goal.\n")
 
 def to_metric(height, weight):
     """Convert imperial height/weight to metric"""
-    height = (((height//1)*12+((height % 1)*10))*2.54)
-    weight = weight*0.45359237
+    height = round((((height//1)*12+((height % 1)*10))*2.54), 2)
+    weight = round(weight*0.45359237, 2)
     return height, weight
 
 
