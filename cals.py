@@ -2,6 +2,7 @@
 """Simple script to track caloric intake and weight loss"""
 
 import os
+import sys
 from datetime import datetime
 import argparse
 import sqlite3
@@ -78,7 +79,9 @@ def validate_input(prompt, dtype):
 
 def get_profile():
     """Collect input for user profile and calculations"""
-    print("Please answer the following questions.\nThey will be used to calculate your BMR, TDEE, and caloric deficit required to reach your weight loss goal.\n")
+    print("Please answer the following questions.\n\
+They will be used to calculate your BMR, TDEE, \
+and caloric deficit required to reach your weight loss goal.\n")
     age = validate_input("Please enter your age: ", int)
     sex = validate_input("Please enter your sex (m/f): ", str)
     height = validate_input("Please enter your height (feet.inches): ", float)
@@ -152,17 +155,17 @@ def commit_goal(goal_entry):
 
 def commit_weight(weight):
     """Commit weight data to db"""
-    entry = [weight,
-             time,
-             date
-             ]
+    record = [weight,
+              time,
+              date
+              ]
     cursor.execute("""CREATE TABLE IF NOT EXISTS weight_table(
         Weight INTEGER,
         Time TEXT,
         Date TEXT)
         """)
     cursor.executemany(
-        "INSERT INTO weight_table VALUES (?,?,?)", (entry, ))
+        "INSERT INTO weight_table VALUES (?,?,?)", (record, ))
     db.commit()
 
 
@@ -215,18 +218,24 @@ def fetch_goal():
 
 def validate_entry(user_input):
     """Validate and build caloric log entry for addition or removal"""
-    if str(user_input[1:]).isdigit:
-        entry = [
+    try:
+        record = [
             str(user_input[0]),
             int(user_input[1]),
             int(user_input[2]),
             str(time),
             str(date)
         ]
-        return entry
+        return record
+    except ValueError as error:
+        option = 'a' if args.a else 'r'
+        print(
+            f"\033[91m[ERROR]\033[00m Usage: cals -{option} 'Protein Bar' 190 16\n\
+                {error}")
+        sys.exit(1)
 
 
-def commit_entry(entry):
+def commit_entry(cal_entry):
     """Insert food entry info into database"""
     cursor.execute("""CREATE TABLE IF NOT EXISTS calorie_table(
         Food_Name TEXT,
@@ -236,7 +245,7 @@ def commit_entry(entry):
         Date TEXT)
         """)
     cursor.executemany(
-        "INSERT INTO calorie_table VALUES (?,?,?,?,?)", (entry, ))
+        "INSERT INTO calorie_table VALUES (?,?,?,?,?)", (cal_entry, ))
     db.commit()
 
 
@@ -295,13 +304,14 @@ def calc_cals(day):
         return cals, protein
 
 
-def remove_entry(entry):
+def remove_entry(cal_entry):
     """Remove caloric entry from db"""
-    food, calories, protein = entry[0], entry[1], entry[2]
+    food, calories, protein = cal_entry[0], cal_entry[1], cal_entry[2]
     with db:
         try:
             cursor.execute(
-                f"DELETE FROM calorie_table WHERE Date='{date}' AND Food_Name='{food}' AND Calories='{calories}' AND Protein='{protein}'")
+                f"DELETE FROM calorie_table WHERE Date='{date}' AND Food_Name='{food}' \
+AND Calories='{calories}' AND Protein='{protein}'")
         except sqlite3.OperationalError as error:
             print(f"\033[91m[ERROR]\033[00m {error}")
 
@@ -316,11 +326,11 @@ if __name__ == '__main__':
         else:
             display_weight()
     if args.a:
-        entry = validate_entry(args.a)
-        commit_entry(entry)
+        food = validate_entry(args.a)
+        commit_entry(food)
     if args.r:
-        entry = validate_entry(args.r)
-        remove_entry(entry)
+        food = validate_entry(args.r)
+        remove_entry(food)
 
     if args.l:
         if int(args.l) > 1:
