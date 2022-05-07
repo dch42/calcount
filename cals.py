@@ -104,11 +104,9 @@ def to_metric(height, weight):
 
 def harris_benedict(weight, height, sex, age):
     """Calculate BMR using Harris-Benedict equation"""
-    bmr = ((weight*10) + (6.25*height) + (5*age))
-    if sex == 'm':
-        bmr += 5
-    else:
-        bmr -= 161
+    nums = [88.362, 13.397, 4.799, 5.677] if sex == 'm' else [
+        447.593, 9.247, 3.098, 4.330]
+    bmr = (nums[0] + (nums[1]*weight) + (nums[2]*height) - (nums[3]*age))
     return bmr
 
 
