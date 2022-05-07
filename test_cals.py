@@ -23,3 +23,13 @@ def test_validate_input(monkeypatch):
     monkeypatch.setattr('sys.stdin', fake_input)
     test = cals.validate_input('Int: ', int)
     assert type(test) == int
+
+
+def test_harris_benedict():
+    h, w, a, s = 170, 68, 19, 'm'
+    bmr = cals.harris_benedict(w, h, s, a)
+    assert round(bmr, 0) == 1707
+
+    h, w, a, s = 120, 85, 77, 'f'
+    bmr = cals.harris_benedict(w, h, s, a)
+    assert round(bmr, 0) == 1272
