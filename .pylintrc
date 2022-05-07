@@ -1,0 +1,3 @@
+[MASTER]
+# allow sqlite3 c extension
+extension-pkg-allow-list=_sqlite3
