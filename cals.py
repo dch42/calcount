@@ -14,7 +14,7 @@ home = os.path.expanduser('~')
 date = datetime.now().date()
 time = datetime.now().time().strftime('%H:%M:%S')
 
-db = sqlite3.connect(f"{home}/.test6calorie_log.db")
+db = sqlite3.connect(f"{home}/.calorie_log.db")
 cursor = db.cursor()
 
 # activity levels and multipliers for tdee
