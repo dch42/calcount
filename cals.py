@@ -14,7 +14,7 @@ home = os.path.expanduser('~')
 date = datetime.now().date()
 time = datetime.now().time().strftime('%H:%M:%S')
 
-db = sqlite3.connect(f"{home}/.calorie_log.db")
+db = sqlite3.connect(f"{home}/.test6calorie_log.db")
 cursor = db.cursor()
 
 # activity levels and multipliers for tdee
@@ -83,7 +83,9 @@ def get_profile():
 They will be used to calculate your BMR, TDEE, \
 and caloric deficit required to reach your weight loss goal.\n")
     age = validate_input("Please enter your age: ", int)
-    sex = validate_input("Please enter your sex (m/f): ", str)
+    sex = ''
+    while sex not in ['m', 'f']:
+        sex = validate_input("Please enter your sex (m/f): ", str)
     height = validate_input("Please enter your height (feet.inches): ", float)
     weight = validate_input("Please enter your weight (lbs): ", float)
     commit_weight(weight)
