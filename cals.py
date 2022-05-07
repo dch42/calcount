@@ -211,8 +211,8 @@ def fetch_goal():
     """Fetch most recent caloric goals from db"""
     with db:
         cursor.execute(
-            "SELECT Goal FROM goal_table ORDER BY Date")
-        goal = cursor.fetchone()[0]
+            "SELECT Goal FROM goal_table ORDER BY Date ASC")
+        goal = cursor.fetchall()[-1][0]
         return goal
 
 
