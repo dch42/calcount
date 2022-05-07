@@ -132,10 +132,10 @@ def tdee_to_goal():
     print(
         f"To lose {lose} lbs/week, you will need to consume {int(goal)} calories/day.\
             \nGood luck!\n")
-    return lose, goal, time, date
+    commit_goal((lose, goal, time, date))
 
 
-def commit_goal(goal):
+def commit_goal(goal_entry):
     """Commit goal data to db"""
     cursor.execute("""CREATE TABLE IF NOT EXISTS goal_table(
         Lose INTEGER,
@@ -144,7 +144,7 @@ def commit_goal(goal):
         Date TEXT)
         """)
     cursor.executemany(
-        "INSERT INTO goal_table VALUES (?,?,?,?)", (goal, ))
+        "INSERT INTO goal_table VALUES (?,?,?,?)", (goal_entry, ))
     db.commit()
 
 # weight log
@@ -168,7 +168,7 @@ def commit_weight(weight):
 
 def display_weight():
     """Fetch weight data from db and display table with weight progress"""
-    weight_log = Table(title=f"Weight Log")
+    weight_log = Table(title="Weight Log")
     weight_log.add_column("Date", justify="right", no_wrap=True)
     weight_log.add_column("Weight", justify="right", no_wrap=True)
     with db:
@@ -271,9 +271,9 @@ def print_daily_log(day):
             console = Console()
             console.print(cal_table)
             cals, protein = calc_cals(day)
-            goal = fetch_goal()
+            calorie_limit = fetch_goal()
             print(f"Total: {cals} calories / {protein}g protein \
-                        \n{int(goal-cals)} calories remaining\n")
+                        \n{int(calorie_limit-cals)} calories remaining\n")
     except sqlite3.OperationalError as error:
         print(f"\033[91m[ERROR]\033[00m {error}\n\tNo calorie data to display.\n\
 \tFirst, please enter a food item to the table: `cals -f 'food' cals protein`")
@@ -309,8 +309,7 @@ def remove_entry(entry):
 if __name__ == '__main__':
     if args.init:
         logo()
-        goal = tdee_to_goal()
-        commit_goal(goal)
+        tdee_to_goal()
     if args.w:
         if int(args.w) > 1:
             commit_weight(args.w)
