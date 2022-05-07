@@ -213,13 +213,13 @@ def fetch_goal():
         return goal
 
 
-def validate_entry(args):
+def validate_entry(user_input):
     """Validate and build caloric log entry for addition or removal"""
-    if str(args[1:]).isdigit:
+    if str(user_input[1:]).isdigit:
         entry = [
-            str(args[0]),
-            int(args[1]),
-            int(args[2]),
+            str(user_input[0]),
+            int(user_input[1]),
+            int(user_input[2]),
             str(time),
             str(date)
         ]
