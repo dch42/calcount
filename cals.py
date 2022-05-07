@@ -30,7 +30,7 @@ activity = {
 parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
     description="cals -- track calories, protein, and weight loss/gain",
-    epilog=f"""Usage examples:\n
+    epilog="""Usage examples:\n
 Add bar with 190kcal and 16g protein:
 \tcals -a 'Protein Bar' 190 16\n
 Remove the entry from previous example:
