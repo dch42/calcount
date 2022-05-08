@@ -281,8 +281,14 @@ def print_daily_log(day):
             console.print(cal_table)
             cals, protein = calc_cals(day)
             calorie_limit = fetch_goal()
+            calories_remaining = int(calorie_limit-cals)
+            if calories_remaining >= 0:
+                over_under = 'remaining'
+            else:
+                calories_remaining = abs(calories_remaining)
+                over_under = 'over'
             print(f"Total: {cals} calories / {protein}g protein \
-                        \n{int(calorie_limit-cals)} calories remaining\n")
+                        \n{calories_remaining} calories {over_under}\n")
     except sqlite3.OperationalError as error:
         print(f"\033[91m[ERROR]\033[00m {error}\n\tNo calorie data to display.\n\
 \tFirst, please enter a food item to the table: `cals -f 'food' cals protein`")
