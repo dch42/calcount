@@ -95,11 +95,11 @@ and caloric deficit required to reach your weight loss goal.\n")
     return age, sex, height, weight, lose
 
 
-def to_metric(height, weight):
+def to_metric(ft_in, lbs):
     """Convert imperial height/weight to metric"""
-    height = round((((height//1)*12+((height % 1)*10))*2.54), 2)
-    weight = round(weight*0.45359237, 2)
-    return height, weight
+    cm = round((((ft_in//1)*12+((ft_in % 1)*10))*2.54), 2)
+    kg = round(lbs*0.45359237, 2)
+    return cm, kg
 
 
 def harris_benedict(weight, height, sex, age):
