@@ -169,7 +169,7 @@ def commit_weight(weight):
     db.commit()
 
 
-def display_weight():
+def display_weight_table():
     """Fetch weight data from db and display table with weight progress"""
     weight_log = Table(title="Weight Log")
     weight_log.add_column("Date", justify="right", no_wrap=True)
@@ -324,7 +324,7 @@ if __name__ == '__main__':
         if int(args.w) > 1:
             commit_weight(args.w)
         else:
-            display_weight()
+            display_weight_table()
     if args.a:
         food = validate_entry(args.a)
         commit_entry(food)
