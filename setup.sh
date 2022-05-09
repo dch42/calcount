@@ -29,6 +29,7 @@ eval pip3 install -r requirements.txt
 case $OSTYPE in 
     "darwin"*) declare personal_bin="/Users/$USER/bin" ;;
     "linux-gnu"*) declare personal_bin="/home/$USER/bin" ;;
+    "linux"*) declare personal_bin="/home/$USER/bin" ;;
 esac
 
 [ -n $ZSH_VERSION ] && 
