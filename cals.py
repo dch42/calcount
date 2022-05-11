@@ -274,8 +274,10 @@ def print_daily_log(day):
             cursor.execute(
                 f"SELECT Food_Name, Calories, Protein FROM calorie_table WHERE Date='{day}'")
             rows = cursor.fetchall()
-            for row in rows:
+            for row in rows[:-1]:
                 cal_table.add_row(f"{row[0]}", f"{row[1]}kcal", f"{row[2]}g")
+            cal_table.add_row(
+                f"{'+' if args.a else ''}{rows[-1][0]}", f"{rows[-1][1]}kcal", f"{rows[-1][2]}g", style=f"{'green' if args.a else ''}")
             print('\n')
             console = Console()
             console.print(cal_table)
@@ -334,6 +336,7 @@ if __name__ == '__main__':
     if args.a:
         food = validate_entry(args.a)
         commit_entry(food)
+        print_daily_log(date)
     if args.r:
         food = validate_entry(args.r)
         remove_entry(food)
