@@ -54,7 +54,7 @@ parser.add_argument(
 parser.add_argument(
     "-w", nargs="?", type=float, const=1, help='input weight into weight log')
 parser.add_argument(
-    "-x", help="export calorie table to csv", action="store_true")
+    "-x", help="export calorie history to csv", action="store_true")
 
 args = parser.parse_args()
 
