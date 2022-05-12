@@ -7,6 +7,7 @@ from datetime import datetime
 import argparse
 import sqlite3
 import pyfiglet
+import pandas as pd
 from rich.console import Console
 from rich.table import Table
 
@@ -52,6 +53,8 @@ parser.add_argument(
     "-l", nargs="?", const=1, help='list calorie info for day(s)')
 parser.add_argument(
     "-w", nargs="?", type=float, const=1, help='input weight into weight log')
+parser.add_argument(
+    "-x", help="export calorie table to csv", action="store_true")
 
 args = parser.parse_args()
 
@@ -324,6 +327,18 @@ AND Calories='{calories}' AND Protein='{protein}'")
             print(f"\033[91m[ERROR]\033[00m {error}")
 
 
+def export_cals(db):
+    """Export calorie table to csv"""
+    try:
+        calorie_df = pd.read_sql_query("SELECT * FROM calorie_table", db)
+        calorie_df.to_csv(
+            f'./calorie_logs-{date}-{time}.csv', index=False)
+        print(
+            f"Exported calorie logs to './calorie_logs-{date}-{time}.csv'")
+    except Exception as error:
+        print(f"\033[91m Export failed: {error}\033[0m")
+
+
 if __name__ == '__main__':
     if args.init:
         logo()
@@ -346,3 +361,5 @@ if __name__ == '__main__':
             print_days(int(args.l))
         else:
             print_daily_log(date)
+    if args.x:
+        export_cals(db)
