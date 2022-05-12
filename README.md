@@ -44,6 +44,7 @@ optional arguments:
   -r R R R    remove a caloric entry ['food name' calories protein]
   -l [L]      list calorie info for day(s)
   -w [W]      input weight into weight log
+  -x          export calorie table to csv
 
 Usage examples:
 
