@@ -279,8 +279,11 @@ def print_daily_log(day):
             rows = cursor.fetchall()
             for row in rows[:-1]:
                 cal_table.add_row(f"{row[0]}", f"{row[1]}kcal", f"{row[2]}g")
-            cal_table.add_row(
-                f"{'+' if args.a else ''}{rows[-1][0]}", f"{rows[-1][1]}kcal", f"{rows[-1][2]}g", style=f"{'green' if args.a else ''}")
+            try:
+                cal_table.add_row(
+                    f"{'+' if args.a else ''}{rows[-1][0]}", f"{rows[-1][1]}kcal", f"{rows[-1][2]}g", style=f"{'green' if args.a else ''}")
+            except IndexError:
+                pass
             print('\n')
             console = Console()
             console.print(cal_table)
