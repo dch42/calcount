@@ -45,8 +45,7 @@ add_to_path
 printf "\nInstalling '$script_name'...\n"
 chmod +x ./${script_name}.$ext &&
 cp ./${script_name}.$ext $personal_bin/$script_name &&
-printf "\n${grn}[SUCCESS]${reset} Script '$script_name' installed at '$personal_bin/$script_name'!\n\n" &&
-eval cals -h ||
+printf "\n${grn}[SUCCESS]${reset} Script '$script_name' installed at '$personal_bin/$script_name'!\n\n" ||
 printf "\n${red}[ERROR]${reset} Something went wrong...\n" exit 1
 
 exit 0
