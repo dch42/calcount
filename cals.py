@@ -20,7 +20,6 @@ ERROR = '\033[91m[ERROR]\033[00m'
 db = sqlite3.connect(f"{home}/.calorie_log.db")
 cursor = db.cursor()
 
-
 # define and parse args
 
 parser = argparse.ArgumentParser(
@@ -163,20 +162,12 @@ class Profile:
         Commit goal info to db
     """
 
-    def __init__(self):
-        self.age = validate_input("Please enter your age: ", int)
-        self.sex = ''
-        while self.sex not in ['m', 'f']:
-            self.sex = validate_input("Please enter your sex (m/f): ", str)
-        self.height = validate_input(
-            "Please enter your height (feet.inches): ", float)
-        self.weight = validate_input("Please enter your weight (lbs): ", float)
-        record = Entry()
-        record.add(self.weight)
-        record.commit_weight()
-        self.height, self.weight = to_metric(self.height, self.weight)
-        self.lose = validate_input(
-            "Please enter desired weight loss per week (lbs): ", float)
+    def __init__(self, age, sex, height, weight, lose):
+        self.age = age
+        self.sex = sex
+        self.height = height
+        self.weight = weight
+        self.lose = lose
         self.bmr = self.harris_benedict()
         self.tdee = self.calc_tdee()
         self.goal = self.calc_goal()
@@ -398,6 +389,28 @@ def logo():
     pyfiglet.print_figlet("CalCount")
     print("Keep track of calories, protein, and weight loss/gain.\n")
 
+def get_profile():
+    """Get profile info from user input and commit weight to db"""
+    age = validate_input("Please enter your age: ", int)
+    sex = ''
+    while sex not in ['m', 'f']:
+        sex =  validate_input("Please enter your sex (m/f): ", str)
+    height = validate_input(
+            "Please enter your height (feet.inches): ", float)
+    weight = validate_input("Please enter your weight (lbs): ", float)
+    lose = validate_input(
+            "Please enter desired weight loss per week (lbs): ", float)
+
+    # convert to metric for calculations
+    height, weight = to_metric(height, weight)
+
+    # enter initial weight data to db
+    record = Entry()
+    record.add(weight)
+    record.commit_weight()
+    
+    return age, sex, height, weight, lose
+
 
 def validate_input(prompt, dtype):
     """Ensure user input for $prompt matches datatype $type"""
@@ -421,8 +434,9 @@ def to_metric(ft_in, lbs):
 
 if __name__ == '__main__':
     if args.init:
-        logo()
-        record = Profile()
+        #logo()
+        user_data = get_profile()
+        record = Profile(*user_data)
         record.commit_profile()
     if args.a or args.r:
         record = Entry()
