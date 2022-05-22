@@ -41,3 +41,15 @@ def test_harris_benedict(monkeypatch):
     test_prof = cals.Profile(*data)
     assert round(test_prof.bmr, 0) == 1272
 
+def test_calc_tdee(monkeypatch):
+    data = (33, 'm', 99.06, 14.97, 3)
+    fake_input = StringIO('1\n')
+    monkeypatch.setattr('sys.stdin', fake_input)
+    test_prof = cals.Profile(*data)
+    assert round(test_prof.tdee, 0) == 692
+
+    data = (33, 'm', 99.06, 14.97, 2)
+    fake_input = StringIO('3\n')
+    monkeypatch.setattr('sys.stdin', fake_input)
+    test_prof = cals.Profile(*data)
+    assert round(test_prof.tdee, 0) == 894
