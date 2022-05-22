@@ -223,40 +223,11 @@ class Profile:
             date
         ]
         with db:
-<<<<<<< HEAD
-            cursor.execute(
-                f"SELECT Food_Name, Calories, Protein FROM calorie_table WHERE Date='{day}'")
-            rows = cursor.fetchall()
-            for row in rows[:-1]:
-                cal_table.add_row(f"{row[0]}", f"{row[1]}kcal", f"{row[2]}g")
-            try:
-                cal_table.add_row(
-                    f"{'+' if args.a else ''}{rows[-1][0]}", f"{rows[-1][1]}kcal", f"{rows[-1][2]}g", style=f"{'green' if args.a else ''}")
-            except IndexError:
-                pass
-            print('\n')
-            console = Console()
-            console.print(cal_table)
-            cals, protein = calc_cals(day)
-            calorie_limit = fetch_goal()
-            calories_remaining = int(calorie_limit-cals)
-            if calories_remaining >= 0:
-                over_under = 'remaining'
-            else:
-                calories_remaining = abs(calories_remaining)
-                over_under = 'over'
-            print(f"Total: {cals} calories / {protein}g protein \
-                        \n{calories_remaining} calories {over_under}\n")
-    except sqlite3.OperationalError as error:
-        print(f"\033[91m[ERROR]\033[00m {error}\n\tNo calorie data to display.\n\
-\tFirst, please enter a food item to the table: `cals -f 'food' cals protein`")
-=======
             create_table('profile_table')
             cursor.executemany(
                 "INSERT INTO profile_table VALUES (?,?,?,?)", (entry, ))
 
 # caloric logs
->>>>>>> dev
 
 
 def calc_cals(day):
