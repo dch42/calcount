@@ -187,6 +187,7 @@ class Profile:
         """Calculate TDEE from BMR and activity multiplier"""
         print("\nAverage Daily Activity Level:\n")
         # activity levels and multipliers for tdee
+
         activity = {
             '1': ["sedentary (little or no exercise)", 1.2],
             '2': ["light activity (light exercise/sports 1 to 3 days per week)", 1.375],
@@ -211,6 +212,7 @@ class Profile:
         print(
             f"To lose {self.lose} lbs/week, you will need to consume {int(goal)} calories/day.\
                 \nGood luck!\n")
+        return goal
 
     def commit_profile(self):
         """Commit goal info to db"""
@@ -434,7 +436,7 @@ def to_metric(ft_in, lbs):
 
 if __name__ == '__main__':
     if args.init:
-        #logo()
+        logo()
         user_data = get_profile()
         record = Profile(*user_data)
         record.commit_profile()
