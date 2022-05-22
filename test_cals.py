@@ -28,11 +28,35 @@ def test_validate_input(monkeypatch):
     assert type(test) == int
 
 
-def test_harris_benedict():
-    h, w, a, s = 170, 68, 19, 'm'
-    bmr = cals.harris_benedict(w, h, s, a)
-    assert round(bmr, 0) == 1707
+def test_harris_benedict(monkeypatch):
+    data = (19, 'm', 170, 68, 2)
+    fake_input = StringIO('1\n')
+    monkeypatch.setattr('sys.stdin', fake_input)
+    test_prof = cals.Profile(*data)
+    assert round(test_prof.bmr, 0) == 1707
 
-    h, w, a, s = 120, 85, 77, 'f'
-    bmr = cals.harris_benedict(w, h, s, a)
-    assert round(bmr, 0) == 1272
+    data = (77, 'f', 120, 85, 2)
+    fake_input = StringIO('1\n')
+    monkeypatch.setattr('sys.stdin', fake_input)
+    test_prof = cals.Profile(*data)
+    assert round(test_prof.bmr, 0) == 1272
+
+def test_calc_tdee(monkeypatch):
+    data = (33, 'm', 99.06, 14.97, 3)
+    fake_input = StringIO('1\n')
+    monkeypatch.setattr('sys.stdin', fake_input)
+    test_prof = cals.Profile(*data)
+    assert round(test_prof.tdee, 0) == 692
+
+    data = (33, 'm', 99.06, 14.97, 2)
+    fake_input = StringIO('3\n')
+    monkeypatch.setattr('sys.stdin', fake_input)
+    test_prof = cals.Profile(*data)
+    assert round(test_prof.tdee, 0) == 894
+
+def test_calc_goal(monkeypatch):
+    data = (33, 'm', 99.06, 14.97, 2)
+    fake_input = StringIO('3\n')
+    monkeypatch.setattr('sys.stdin', fake_input)
+    test_prof = cals.Profile(*data)
+    assert int(test_prof.goal) == -105
