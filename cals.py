@@ -20,36 +20,37 @@ ERROR = '\033[91m[ERROR]\033[00m'
 db = sqlite3.connect(f"{home}/.calorie_log.db")
 cursor = db.cursor()
 
-# define and parse args
 
-parser = argparse.ArgumentParser(
-    formatter_class=argparse.RawDescriptionHelpFormatter,
-    description="cals -- track calories, protein, and weight loss/gain",
-    epilog="""Usage examples:\n
-Add bar with 190kcal and 16g protein:
-\tcals -a 'Protein Bar' 190 16\n
-Remove the entry from previous example:
-\tcals -r 'Protein Bar' 190 16\n
-Print calorie log tables for past 3 days:
-\tcals -l 3\n
-Add a weight record of 142.7 to the table:
-\tcals -w 142.7\n
-Display weight log and total weight loss/gain:
-\tcals -w""")
-parser.add_argument(
-    "--init", help="calculate TDEE and set weekly weight loss goal", action="store_true")
-parser.add_argument(
-    "-a", nargs=3, action="store", help="add a caloric entry ['food name' calories protein]")
-parser.add_argument(
-    "-r", nargs=3, action="store", help="remove a caloric entry ['food name' calories protein]")
-parser.add_argument(
-    "-l", nargs="?", const=1, help='list calorie info for day(s)')
-parser.add_argument(
-    "-w", nargs="?", type=float, const=1, help='input weight into weight log')
-parser.add_argument(
-    "-x", help="export calorie history to csv", action="store_true")
+def parse_args(args):
+    """Define and parse args"""
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description="cals -- track calories, protein, and weight loss/gain",
+        epilog="""Usage examples:\n
+    Add bar with 190kcal and 16g protein:
+    \tcals -a 'Protein Bar' 190 16\n
+    Remove the entry from previous example:
+    \tcals -r 'Protein Bar' 190 16\n
+    Print calorie log tables for past 3 days:
+    \tcals -l 3\n
+    Add a weight record of 142.7 to the table:
+    \tcals -w 142.7\n
+    Display weight log and total weight loss/gain:
+    \tcals -w""")
+    parser.add_argument(
+        "--init", help="calculate TDEE and set weekly weight loss goal", action="store_true")
+    parser.add_argument(
+        "-a", nargs=3, action="store", help="add a caloric entry ['food name' calories protein]")
+    parser.add_argument(
+        "-r", nargs=3, action="store", help="remove a caloric entry ['food name' calories protein]")
+    parser.add_argument(
+        "-l", nargs="?", const=1, help='list calorie info for day(s)')
+    parser.add_argument(
+        "-w", nargs="?", type=float, const=1, help='input weight into weight log')
+    parser.add_argument(
+        "-x", help="export calorie history to csv", action="store_true")
 
-args = parser.parse_args()
+    return parser.parse_args()
 
 
 class Entry:
@@ -438,6 +439,7 @@ def to_metric(ft_in, lbs):
 
 
 if __name__ == '__main__':
+    args = parse_args(sys.argv[1:])
     if args.init:
         logo()
         user_data = get_profile()
