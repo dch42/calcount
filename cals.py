@@ -73,6 +73,8 @@ class Entry:
         Removes caloric entry from db
     commit_weight():
         Commits weight entry to db
+    commit_profile():
+        Commits profile entry to db
     """
 
     def __init__(self):
@@ -131,6 +133,19 @@ class Entry:
             cursor.executemany(
                 "INSERT INTO weight_table VALUES (?,?,?)", (entry, ))
             db.commit()
+
+    def commit_profile(self):
+        """Commit goal info to db (lose, goal)"""
+        entry = [
+            self.content[0],
+            self.content[1],
+            time,
+            date
+        ]
+        with db:
+            create_table('profile_table')
+            cursor.executemany(
+                "INSERT INTO profile_table VALUES (?,?,?,?)", (entry, ))
 
 
 class Profile:
@@ -213,19 +228,6 @@ class Profile:
             f"To lose {self.lose} lbs/week, you will need to consume {int(goal)} calories/day.\
                 \nGood luck!\n")
         return goal
-
-    def commit_profile(self):
-        """Commit goal info to db"""
-        entry = [
-            self.lose,
-            self.goal,
-            time,
-            date
-        ]
-        with db:
-            create_table('profile_table')
-            cursor.executemany(
-                "INSERT INTO profile_table VALUES (?,?,?,?)", (entry, ))
 
 # caloric logs
 
@@ -391,17 +393,18 @@ def logo():
     pyfiglet.print_figlet("CalCount")
     print("Keep track of calories, protein, and weight loss/gain.\n")
 
+
 def get_profile():
     """Get profile info from user input and commit weight to db"""
     age = validate_input("Please enter your age: ", int)
     sex = ''
     while sex not in ['m', 'f']:
-        sex =  validate_input("Please enter your sex (m/f): ", str)
+        sex = validate_input("Please enter your sex (m/f): ", str)
     height = validate_input(
-            "Please enter your height (feet.inches): ", float)
+        "Please enter your height (feet.inches): ", float)
     weight = validate_input("Please enter your weight (lbs): ", float)
     lose = validate_input(
-            "Please enter desired weight loss per week (lbs): ", float)
+        "Please enter desired weight loss per week (lbs): ", float)
 
     # convert to metric for calculations
     height, weight = to_metric(height, weight)
@@ -410,7 +413,7 @@ def get_profile():
     record = Entry()
     record.add(weight)
     record.commit_weight()
-    
+
     return age, sex, height, weight, lose
 
 
@@ -438,7 +441,9 @@ if __name__ == '__main__':
     if args.init:
         logo()
         user_data = get_profile()
-        record = Profile(*user_data)
+        profile = Profile(*user_data)
+        record = Entry()
+        record.add(profile.lose, profile.goal)
         record.commit_profile()
     if args.a or args.r:
         record = Entry()
