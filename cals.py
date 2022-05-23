@@ -174,8 +174,6 @@ class Profile:
         Calculate TDEE from BMR
     calc_goal():
         Calculate caloric goal from TDEE
-    commit_profile():
-        Commit goal info to db
     """
 
     def __init__(self, age, sex, height, weight, lose):
