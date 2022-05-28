@@ -40,6 +40,8 @@ def parse_args(args):
     parser.add_argument(
         "--init", help="calculate TDEE and set weekly weight loss goal", action="store_true")
     parser.add_argument(
+        "-z", help="use a zigzag diet instead of flat CICO", action="store_true")
+    parser.add_argument(
         "-a", nargs=3, action="store", help="add a caloric entry ['food name' calories protein]")
     parser.add_argument(
         "-r", nargs=3, action="store", help="remove a caloric entry ['food name' calories protein]")
@@ -137,13 +139,20 @@ class Entry:
         entry = [
             self.content[0],
             self.content[1],
+            self.content[2],
+            self.content[3],
+            self.content[4],
+            self.content[5],
+            self.content[6],
+            self.content[7],
+            self.content[8],
             time,
             date
         ]
         with db:
             create_table('profile_table')
             cursor.executemany(
-                "INSERT INTO profile_table VALUES (?,?,?,?)", (entry, ))
+                "INSERT INTO profile_table VALUES (?,?,?,?,?,?,?,?,?,?,?)", (entry, ))
 
 
 class Profile:
@@ -271,7 +280,7 @@ def fetch_goal():
     """Fetch most recent caloric goals from db"""
     with db:
         cursor.execute(
-            "SELECT Goal FROM profile_table ORDER BY Date ASC")
+            f"SELECT {date.strftime('%A')[:3]} FROM profile_table ORDER BY Date ASC")
         goal = cursor.fetchall()[-1][0]
         return goal
 
@@ -470,7 +479,15 @@ if __name__ == '__main__':
         user_data = get_profile()
         profile = Profile(*user_data)
         record = Entry()
-        record.add(profile.lose, profile.goal)
+        if args.z:
+            diet = ZigZag(profile.tdee, profile.lose)
+            cal_arr = diet.calc_zigzag()
+        else:
+            cal_arr = [profile.goal] * 7
+        items = [profile.lose, profile.goal]
+        items = items + cal_arr
+        for item in items:
+            record.add(item)
         record.commit_profile()
     if args.a or args.r:
         record = Entry()
