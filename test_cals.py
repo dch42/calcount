@@ -53,3 +53,10 @@ def test_calc_tdee(monkeypatch):
     monkeypatch.setattr('sys.stdin', fake_input)
     test_prof = cals.Profile(*data)
     assert round(test_prof.tdee, 0) == 894
+
+def test_calc_goal(monkeypatch):
+    data = (33, 'm', 99.06, 14.97, 2)
+    fake_input = StringIO('3\n')
+    monkeypatch.setattr('sys.stdin', fake_input)
+    test_prof = cals.Profile(*data)
+    assert int(test_prof.goal) == -105

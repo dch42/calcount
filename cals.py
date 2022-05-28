@@ -20,49 +20,47 @@ ERROR = '\033[91m[ERROR]\033[00m'
 db = sqlite3.connect(f"{home}/.calorie_log.db")
 cursor = db.cursor()
 
-# define and parse args
 
-parser = argparse.ArgumentParser(
-    formatter_class=argparse.RawDescriptionHelpFormatter,
-    description="cals -- track calories, protein, and weight loss/gain",
-    epilog="""Usage examples:\n
-Add bar with 190kcal and 16g protein:
-\tcals -a 'Protein Bar' 190 16\n
-Remove the entry from previous example:
-\tcals -r 'Protein Bar' 190 16\n
-Print calorie log tables for past 3 days:
-\tcals -l 3\n
-Add a weight record of 142.7 to the table:
-\tcals -w 142.7\n
-Display weight log and total weight loss/gain:
-\tcals -w""")
-parser.add_argument(
-    "--init", help="calculate TDEE and set weekly weight loss goal", action="store_true")
-parser.add_argument(
-    "-a", nargs=3, action="store", help="add a caloric entry ['food name' calories protein]")
-parser.add_argument(
-    "-r", nargs=3, action="store", help="remove a caloric entry ['food name' calories protein]")
-parser.add_argument(
-    "-l", nargs="?", const=1, help='list calorie info for day(s)')
-parser.add_argument(
-    "-w", nargs="?", type=float, const=1, help='input weight into weight log')
-parser.add_argument(
-    "-x", help="export calorie table to csv", action="store_true")
+def parse_args(args):
+    """Define and parse args"""
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description="cals -- track calories, protein, and weight loss/gain",
+        epilog="""Usage examples:\n
+    Add bar with 190kcal and 16g protein:
+    \tcals -a 'Protein Bar' 190 16\n
+    Remove the entry from previous example:
+    \tcals -r 'Protein Bar' 190 16\n
+    Print calorie log tables for past 3 days:
+    \tcals -l 3\n
+    Add a weight record of 142.7 to the table:
+    \tcals -w 142.7\n
+    Display weight log and total weight loss/gain:
+    \tcals -w""")
+    parser.add_argument(
+        "--init", help="calculate TDEE and set weekly weight loss goal", action="store_true")
+    parser.add_argument(
+        "-a", nargs=3, action="store", help="add a caloric entry ['food name' calories protein]")
+    parser.add_argument(
+        "-r", nargs=3, action="store", help="remove a caloric entry ['food name' calories protein]")
+    parser.add_argument(
+        "-l", nargs="?", const=1, help='list calorie info for day(s)')
+    parser.add_argument(
+        "-w", nargs="?", type=float, const=1, help='input weight into weight log')
+    parser.add_argument(
+        "-x", help="export calorie history to csv", action="store_true")
 
-args = parser.parse_args()
+    return parser.parse_args()
 
 
 class Entry:
     """
     A class to represent a bundle of data to be added to db
-
     ...
-
     Attributes
     ----------
     content : list
         array of items to be commited to/removed from db
-
     Methods
     -------
     add(item):
@@ -73,6 +71,8 @@ class Entry:
         Removes caloric entry from db
     commit_weight():
         Commits weight entry to db
+    commit_profile():
+        Commits profile entry to db
     """
 
     def __init__(self):
@@ -132,6 +132,19 @@ class Entry:
                 "INSERT INTO weight_table VALUES (?,?,?)", (entry, ))
             db.commit()
 
+    def commit_profile(self):
+        """Commit goal info to db (lose, goal)"""
+        entry = [
+            self.content[0],
+            self.content[1],
+            time,
+            date
+        ]
+        with db:
+            create_table('profile_table')
+            cursor.executemany(
+                "INSERT INTO profile_table VALUES (?,?,?,?)", (entry, ))
+
 
 class Profile:
     """
@@ -149,7 +162,6 @@ class Profile:
         Weight of user in lbs
     lose : float
         Amount of weight to lose per week in lbs
-
     Methods
     -------
     harris_benedict():
@@ -158,8 +170,6 @@ class Profile:
         Calculate TDEE from BMR
     calc_goal():
         Calculate caloric goal from TDEE
-    commit_profile():
-        Commit goal info to db
     """
 
     def __init__(self, age, sex, height, weight, lose):
@@ -187,6 +197,7 @@ class Profile:
         """Calculate TDEE from BMR and activity multiplier"""
         print("\nAverage Daily Activity Level:\n")
         # activity levels and multipliers for tdee
+
         activity = {
             '1': ["sedentary (little or no exercise)", 1.2],
             '2': ["light activity (light exercise/sports 1 to 3 days per week)", 1.375],
@@ -211,19 +222,9 @@ class Profile:
         print(
             f"To lose {self.lose} lbs/week, you will need to consume {int(goal)} calories/day.\
                 \nGood luck!\n")
+        return goal
 
-    def commit_profile(self):
-        """Commit goal info to db"""
-        entry = [
-            self.lose,
-            self.goal,
-            time,
-            date
-        ]
-        with db:
-            create_table('profile_table')
-            cursor.executemany(
-                "INSERT INTO profile_table VALUES (?,?,?,?)", (entry, ))
+# TODO integrate
 
 
 class Diet:
@@ -456,10 +457,13 @@ def to_metric(ft_in, lbs):
 
 
 if __name__ == '__main__':
+    args = parse_args(sys.argv[1:])
     if args.init:
-        # logo()
+        logo()
         user_data = get_profile()
-        record = Profile(*user_data)
+        profile = Profile(*user_data)
+        record = Entry()
+        record.add(profile.lose, profile.goal)
         record.commit_profile()
     if args.a or args.r:
         record = Entry()
