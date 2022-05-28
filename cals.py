@@ -137,18 +137,11 @@ class Entry:
 
     def commit_profile(self):
         """Commit calorie goal info to db"""
-        entry = [
-            self.content[0],
-            self.content[1],
-            self.content[2],
-            self.content[3],
-            self.content[4],
-            self.content[5],
-            self.content[6],
-            self.content[7],
-            time,
-            date
-        ]
+        entry = []
+        for item in self.content:
+            entry.append(item)
+        for item in time, date:
+            entry.append(item)
         with db:
             create_table('profile_table')
             cursor.executemany(
@@ -481,8 +474,7 @@ if __name__ == '__main__':
         else:
             diet = Diet(profile.tdee, profile.lose)
             cal_arr = [diet.calories] * 7
-        items = [profile.lose]
-        items = items + cal_arr
+        items = [profile.lose] + cal_arr
         for item in items:
             record.add(item)
         record.commit_profile()
