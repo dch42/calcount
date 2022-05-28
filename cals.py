@@ -17,7 +17,8 @@ time = datetime.now().time().strftime('%H:%M:%S')
 ERROR = '\033[91m[ERROR]\033[00m'
 
 
-db = sqlite3.connect(f"{home}/.calorie_log.db")
+# db = sqlite3.connect(f"{home}/.calorie_log.db")
+db = sqlite3.connect(f"{home}/.testcalorie_log.db")
 cursor = db.cursor()
 
 
@@ -135,7 +136,7 @@ class Entry:
             db.commit()
 
     def commit_profile(self):
-        """Commit goal info to db (lose, goal)"""
+        """Commit calorie goal info to db"""
         entry = [
             self.content[0],
             self.content[1],
@@ -145,14 +146,13 @@ class Entry:
             self.content[5],
             self.content[6],
             self.content[7],
-            self.content[8],
             time,
             date
         ]
         with db:
             create_table('profile_table')
             cursor.executemany(
-                "INSERT INTO profile_table VALUES (?,?,?,?,?,?,?,?,?,?,?)", (entry, ))
+                "INSERT INTO profile_table VALUES (?,?,?,?,?,?,?,?,?,?)", (entry, ))
 
 
 class Profile:
@@ -177,8 +177,6 @@ class Profile:
         Calculate BMR using Harris-Benedict equation
     calc_tdee():
         Calculate TDEE from BMR
-    calc_goal():
-        Calculate caloric goal from TDEE
     """
 
     def __init__(self, age, sex, height, weight, lose):
@@ -189,7 +187,6 @@ class Profile:
         self.lose = lose
         self.bmr = self.harris_benedict()
         self.tdee = self.calc_tdee()
-        self.goal = self.calc_goal()
 
     def harris_benedict(self):
         """Calculate BMR using Harris-Benedict equation"""
@@ -396,7 +393,6 @@ def create_table(table):
         elif table == 'profile_table':
             cursor.execute("""CREATE TABLE IF NOT EXISTS profile_table(
                 Lose INTEGER,
-                Goal INTEGER,
                 Mon INTEGER,
                 Tue INTEGER,
                 Wed INTEGER,
@@ -483,8 +479,9 @@ if __name__ == '__main__':
             diet = ZigZag(profile.tdee, profile.lose)
             cal_arr = diet.calc_zigzag()
         else:
-            cal_arr = [profile.goal] * 7
-        items = [profile.lose, profile.goal]
+            diet = Diet(profile.tdee, profile.lose)
+            cal_arr = [diet.calories] * 7
+        items = [profile.lose]
         items = items + cal_arr
         for item in items:
             record.add(item)
