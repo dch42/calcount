@@ -388,6 +388,13 @@ def create_table(table):
             cursor.execute("""CREATE TABLE IF NOT EXISTS profile_table(
                 Lose INTEGER,
                 Goal INTEGER,
+                Mon INTEGER,
+                Tue INTEGER,
+                Wed INTEGER,
+                Thu INTEGER,
+                Fri INTEGER,
+                Sat INTEGER,
+                Sun INTEGER,
                 Time TEXT,
                 Date TEXT)
                 """)
