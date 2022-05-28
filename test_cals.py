@@ -67,4 +67,5 @@ def test_calc_goal(monkeypatch):
     fake_input = StringIO('3\n')
     monkeypatch.setattr('sys.stdin', fake_input)
     test_prof = cals.Profile(*data)
-    assert int(test_prof.goal) == -105
+    diet = cals.Diet(test_prof.tdee, test_prof.lose)
+    assert int(diet.calories) == -105
