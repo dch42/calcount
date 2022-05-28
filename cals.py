@@ -164,6 +164,10 @@ class Profile:
         Weight of user in lbs
     lose : float
         Amount of weight to lose per week in lbs
+    bmr : int
+        Basal Metabolic Rate
+    tdee : int
+        Total Daily Energy Expenditure
     Methods
     -------
     harris_benedict():
@@ -227,6 +231,19 @@ class Profile:
 
 
 class Diet:
+    """
+    A class to represent CICO diet
+    ...
+    Attributes
+    ----------
+    tdee : int
+        Total Daily Energy Expenditure
+    to_lose : int
+        Amount of weight to lose per week in lbs
+    calories : int
+        Calories to consume per day to lose $to_lose
+    """
+
     def __init__(self, tdee, to_lose):
         self.tdee = tdee
         self.to_lose = to_lose
@@ -234,6 +251,15 @@ class Diet:
 
 
 class ZigZag(Diet):
+    """
+    Diet subclass, ZigZag diet
+    ...
+    Methods
+    ----------
+    calc_zigzag()
+        Spreads caloric deficit across the week in zigzag fashion
+    """
+
     def calc_zigzag(self):
         weekly_plan = [self.calories] * 7
         for i in range(0, 6):
