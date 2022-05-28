@@ -228,6 +228,8 @@ class Profile:
                 \nGood luck!\n")
         return goal
 
+# TODO integrate
+
 
 class Diet:
     def __init__(self, tdee, to_lose):
