@@ -228,6 +228,28 @@ class Profile:
                 \nGood luck!\n")
         return goal
 
+
+class Diet:
+    def __init__(self, tdee, to_lose):
+        self.tdee = tdee
+        self.to_lose = to_lose
+        self.calories = tdee-(to_lose*500)
+
+
+class ZigZag(Diet):
+    def calc_zigzag(self):
+        weekly_plan = [self.calories] * 7
+        for i in range(0, 6):
+            if not i % 2:
+                weekly_plan[i] *= .75
+            else:
+                weekly_plan[i] *= 1.25
+            if i in (1, 2):
+                weekly_plan[i] *= .75
+            if i in (3, 4):
+                weekly_plan[i] *= 1.25
+        return weekly_plan
+
 # caloric logs
 
 
