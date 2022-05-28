@@ -225,6 +225,28 @@ class Profile:
             cursor.executemany(
                 "INSERT INTO profile_table VALUES (?,?,?,?)", (entry, ))
 
+
+class Diet:
+    def __init__(self, tdee, to_lose):
+        self.tdee = tdee
+        self.to_lose = to_lose
+        self.calories = tdee-(to_lose*500)
+
+
+class ZigZag(Diet):
+    def calc_zigzag(self):
+        weekly_plan = [self.calories] * 7
+        for i in range(0, 6):
+            if not i % 2:
+                weekly_plan[i] *= .75
+            else:
+                weekly_plan[i] *= 1.25
+            if i in (1, 2):
+                weekly_plan[i] *= .75
+            if i in (3, 4):
+                weekly_plan[i] *= 1.25
+        return weekly_plan
+
 # caloric logs
 
 
@@ -389,17 +411,18 @@ def logo():
     pyfiglet.print_figlet("CalCount")
     print("Keep track of calories, protein, and weight loss/gain.\n")
 
+
 def get_profile():
     """Get profile info from user input and commit weight to db"""
     age = validate_input("Please enter your age: ", int)
     sex = ''
     while sex not in ['m', 'f']:
-        sex =  validate_input("Please enter your sex (m/f): ", str)
+        sex = validate_input("Please enter your sex (m/f): ", str)
     height = validate_input(
-            "Please enter your height (feet.inches): ", float)
+        "Please enter your height (feet.inches): ", float)
     weight = validate_input("Please enter your weight (lbs): ", float)
     lose = validate_input(
-            "Please enter desired weight loss per week (lbs): ", float)
+        "Please enter desired weight loss per week (lbs): ", float)
 
     # convert to metric for calculations
     height, weight = to_metric(height, weight)
@@ -408,7 +431,7 @@ def get_profile():
     record = Entry()
     record.add(weight)
     record.commit_weight()
-    
+
     return age, sex, height, weight, lose
 
 
@@ -434,7 +457,7 @@ def to_metric(ft_in, lbs):
 
 if __name__ == '__main__':
     if args.init:
-        #logo()
+        # logo()
         user_data = get_profile()
         record = Profile(*user_data)
         record.commit_profile()
