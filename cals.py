@@ -17,7 +17,7 @@ time = datetime.now().time().strftime('%H:%M:%S')
 ERROR = '\033[91m[ERROR]\033[00m'
 
 
-db = sqlite3.connect(f"{home}/.calorie_log.db")
+db = sqlite3.connect(f"{home}/.7calorie_log.db")
 cursor = db.cursor()
 
 
@@ -486,6 +486,24 @@ def to_metric(ft_in, lbs):
     return cm, kg
 
 
+def print_cal_plan():
+    """Print weekly calorie plan"""
+    table = Table(title="Weekly Plan")
+    for col in 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun':
+        table.add_column(f"{col}", justify="right", no_wrap=True)
+    with db:
+        cursor.execute(
+            f"SELECT Mon, Tue, Wed, Thu, Fri, Sat, Sun FROM profile_table ORDER BY Date ASC")
+        plan = list(cursor.fetchall()[0])
+        for i in range(len(plan)):
+            plan[i] = round(plan[i])
+    table.add_row(f"{plan[0]}", f"{plan[1]}", f"{plan[2]}",
+                  f"{plan[3]}", f"{plan[4]}", f"{plan[5]}", f"{plan[6]}")
+    print('\n')
+    console = Console()
+    console.print(table)
+
+
 if __name__ == '__main__':
     args = parse_args(sys.argv[1:])
     if args.init:
@@ -504,6 +522,7 @@ if __name__ == '__main__':
             record.add(item)
         record.commit_profile()
     if args.a or args.r:
+        print_cal_plan()
         record = Entry()
         if args.a:
             for arg in args.a:
@@ -515,6 +534,7 @@ if __name__ == '__main__':
                 record.add(arg)
             record.remove_cals()
     if args.l:
+        print_cal_plan()
         if int(args.l) > 1:
             print_days(int(args.l))
         else:
