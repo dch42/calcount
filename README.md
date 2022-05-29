@@ -33,13 +33,14 @@ This will install dependencies and install the script as `cals` in ~/bin, as wel
 ## Usage
 
 ~~~
-usage: cals [-h] [--init] [-a A A A] [-r R R R] [-l [L]] [-w [W]]
+usage: cals.py [-h] [--init] [-z] [-a A A A] [-r R R R] [-l [L]] [-w [W]] [-x]
 
 cals -- track calories, protein, and weight loss/gain
 
 optional arguments:
   -h, --help  show this help message and exit
   --init      calculate TDEE and set weekly weight loss goal
+  -z          use a zigzag diet instead of flat CICO
   -a A A A    add a caloric entry ['food name' calories protein]
   -r R R R    remove a caloric entry ['food name' calories protein]
   -l [L]      list calorie info for day(s)
@@ -48,20 +49,20 @@ optional arguments:
 
 Usage examples:
 
-Add bar with 190kcal and 16g protein:
-	cals -a 'Protein Bar' 190 16
+    Add bar with 190kcal and 16g protein:
+    	cals -a 'Protein Bar' 190 16
 
-Remove the entry from previous example:
-	cals -r 'Protein Bar' 190 16
+    Remove the entry from previous example:
+    	cals -r 'Protein Bar' 190 16
 
-Print calorie log tables for past 3 days:
-	cals -l 3
+    Print calorie log tables for past 3 days:
+    	cals -l 3
 
-Add a weight record of 142.7 to the table:
-	cals -w 142.7
+    Add a weight record of 142.7 to the table:
+    	cals -w 142.7
 
-Display weight log and total weight loss/gain:
-	cals -w
+    Display weight log and total weight loss/gain:
+    	cals -w
 ~~~
 
 ### Calculating TDEE/BMR/Daily Caloric Goal
@@ -79,6 +80,26 @@ This information is used to calculate BMR using the [Harris-Benedict Equation](h
 Caloric goal is calculated assuming a deficit of 500kcal/day results in ~1lb of weight loss/week.
 
 This data can be overridden by repeating this process, as calculations are made using the most recent entry in the table.
+
+#### ZigZag Diet
+
+`--init` without `-z` spreads the caloric defecit evenly across each day of the week, standard CICO. 
+
+`--init` with `-z` will implement a ZigZag diet strategy, spreading the defecit in a zigzagging pattern across each day of the week.
+
+Example:
+
+*Assuming a TDEE of 2577 and weekly weight loss goal of 2 lbs*
+
+Each item in array represents calorie limit for a day of the week.
+
+`cals --init` will yield an array of:
+
+[1577, 1577, 1577, 1577, 1577, 1577, 1577]
+
+`cals --init -z` will yield an array of:
+
+[1182.8, 1478.4, 887.1, 2464.1, 1478.4, 1971.2, 1577]
 
 ### Adding Food to Log
 
