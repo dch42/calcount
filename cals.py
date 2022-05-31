@@ -17,7 +17,7 @@ time = datetime.now().time().strftime('%H:%M:%S')
 ERROR = '\033[91m[ERROR]\033[00m'
 
 
-db = sqlite3.connect(f"{home}/.7calorie_log.db")
+db = sqlite3.connect(f"{home}/.calorie_log.db")
 cursor = db.cursor()
 
 
