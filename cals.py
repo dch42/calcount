@@ -13,6 +13,7 @@ from rich.table import Table
 
 home = os.path.expanduser('~')
 date = datetime.now().date()
+today = date.strftime('%A')[:3]
 time = datetime.now().time().strftime('%H:%M:%S')
 ERROR = '\033[91m[ERROR]\033[00m'
 
@@ -316,7 +317,7 @@ def print_days(num):
 
 def print_daily_log(day):
     """Print caloric log for $day"""
-    cal_table = Table(title=f"Calorie Log: {day}")
+    cal_table = Table(title=f"Calorie Log: {today} {day}")
     for col in 'Food', 'Calories', 'Protein':
         cal_table.add_column(f"{col}", justify="right", no_wrap=True)
     try:
