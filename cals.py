@@ -324,6 +324,7 @@ def print_daily_log(day):
                 weekday = datetime.strptime(
                     f'{rows[0][3]}', '%Y-%m-%d').strftime('%A')[:3]
             except IndexError:
+                # prevent failure on empty table
                 weekday = today
                 pass
             cal_table = Table(title=f"Calorie Log: {weekday} {day}")
