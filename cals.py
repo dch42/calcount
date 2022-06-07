@@ -227,8 +227,6 @@ class Profile:
                 \nGood luck!\n")
         return goal
 
-# TODO integrate
-
 
 class Diet:
     """
@@ -317,14 +315,16 @@ def print_days(num):
 
 def print_daily_log(day):
     """Print caloric log for $day"""
-    cal_table = Table(title=f"Calorie Log: {today} {day}")
-    for col in 'Food', 'Calories', 'Protein':
-        cal_table.add_column(f"{col}", justify="right", no_wrap=True)
     try:
         with db:
             cursor.execute(
-                f"SELECT Food_Name, Calories, Protein FROM calorie_table WHERE Date='{day}'")
+                f"SELECT Food_Name, Calories, Protein, Date FROM calorie_table WHERE Date='{day}'")
             rows = cursor.fetchall()
+            weekday = datetime.strptime(
+                f'{rows[0][3]}', '%Y-%M-%d').strftime('%A')[:3]
+            cal_table = Table(title=f"Calorie Log: {weekday} {day}")
+            for col in 'Food', 'Calories', 'Protein':
+                cal_table.add_column(f"{col}", justify="right", no_wrap=True)
             for row in rows[:-1]:
                 cal_table.add_row(f"{row[0]}", f"{row[1]}kcal", f"{row[2]}g")
             try:
