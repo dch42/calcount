@@ -525,15 +525,14 @@ if __name__ == '__main__':
     if args.a or args.r:
         print_cal_plan()
         record = Entry()
+        food = args.a if args.a else args.r
+        for arg in food:
+            record.add(arg)
         if args.a:
-            for arg in args.a:
-                record.add(arg)
             record.commit_cals()
-            print_daily_log(date)
         elif args.r:
-            for arg in args.r:
-                record.add(arg)
             record.remove_cals()
+        print_daily_log(date)
     if args.l:
         print_cal_plan()
         if int(args.l) > 1:
