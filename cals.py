@@ -286,8 +286,7 @@ def calc_cals(day):
             for row in rows:
                 i = i + row[0]
             info.append(i)
-        cals, protein = info[0], info[1]
-        return cals, protein
+        return info[0], info[1]
 
 
 def fetch_goal():
@@ -306,6 +305,7 @@ def print_days(num):
             cursor.execute(
                 f"SELECT DISTINCT Date FROM calorie_table ORDER BY Date DESC LIMIT {num}")
             days = cursor.fetchall()
+            # loop backwards through days
             for day in days[::-1]:
                 print_daily_log(day[0])
         except sqlite3.OperationalError as err:
