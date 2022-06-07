@@ -333,6 +333,7 @@ def print_daily_log(day):
             for row in rows[:-1]:
                 cal_table.add_row(f"{row[0]}", f"{row[1]}kcal", f"{row[2]}g")
             try:
+                # style entry if added
                 cal_table.add_row(
                     f"{'+' if args.a else ''}{rows[-1][0]}", f"{rows[-1][1]}kcal",
                     f"{rows[-1][2]}g", style=f"{'green' if args.a else ''}")
