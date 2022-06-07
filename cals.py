@@ -320,8 +320,12 @@ def print_daily_log(day):
             cursor.execute(
                 f"SELECT Food_Name, Calories, Protein, Date FROM calorie_table WHERE Date='{day}'")
             rows = cursor.fetchall()
-            weekday = datetime.strptime(
-                f'{rows[0][3]}', '%Y-%M-%d').strftime('%A')[:3]
+            try:
+                weekday = datetime.strptime(
+                    f'{rows[0][3]}', '%Y-%m-%d').strftime('%A')[:3]
+            except IndexError:
+                weekday = today
+                pass
             cal_table = Table(title=f"Calorie Log: {weekday} {day}")
             for col in 'Food', 'Calories', 'Protein':
                 cal_table.add_column(f"{col}", justify="right", no_wrap=True)
