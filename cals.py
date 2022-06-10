@@ -68,8 +68,6 @@ class Entry:
     -------
     add(item):
         Adds item to content list
-    commit_weight():
-        Commits weight entry to db
     commit_profile():
         Commits profile entry to db
     """
@@ -80,18 +78,6 @@ class Entry:
     def add(self, item):
         """Add item to entry content array"""
         self.content.append(item)
-
-    def commit_weight(self):
-        """Commit weight data to db"""
-        entry = [self.content[0],
-                 time,
-                 date
-                 ]
-        with db:
-            create_table('weight_table')
-            cursor.executemany(
-                "INSERT INTO weight_table VALUES (?,?,?)", (entry, ))
-            db.commit()
 
     def commit_profile(self):
         """Commit calorie goal info to db"""
@@ -150,6 +136,34 @@ class CalEntry(Entry):
                     AND Calories='{self.content[1]}' AND Protein='{self.content[2]}'")
             except sqlite3.OperationalError as err:
                 print(f"{ERROR} {err}")
+
+
+class WeightEntry(Entry):
+    """
+    Entry subclass to represent a weight data to be added to db
+    ...
+    Methods
+    -------
+    commit_weight():
+        Commits weight entry to db
+    """
+
+    def validate(self):
+        """Validate weight log entry for addition to table"""
+        usage = "Usage: cals -w 175"
+        assert len(self.content) == 1 and \
+            type(float(self.content[0])) == float, f"{usage}"
+
+    def commit_weight(self):
+        """Commit weight data to db"""
+        self.validate()
+        for item in time, date:
+            self.content.append(item)
+        with db:
+            create_table('weight_table')
+            cursor.executemany(
+                "INSERT INTO weight_table VALUES (?,?,?)", (self.content, ))
+            db.commit()
 
 
 class Profile:
@@ -552,7 +566,7 @@ if __name__ == '__main__':
             print_daily_log(date)
     if args.w:
         if int(args.w) > 1:
-            record = Entry()
+            record = WeightEntry()
             record.add(args.w)
             record.commit_weight()
         else:
