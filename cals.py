@@ -286,14 +286,15 @@ def calc_cals(day):
             for row in rows:
                 i = i + row[0]
             info.append(i)
-        return info[0], info[1]
+        cals, protein = info[0], info[1]
+        return cals, protein
 
 
-def fetch_goal():
+def fetch_goal(day):
     """Fetch most recent caloric goals from db"""
     with db:
         cursor.execute(
-            f"SELECT {date.strftime('%A')[:3]} FROM profile_table ORDER BY Date ASC")
+            f"SELECT {day} FROM profile_table ORDER BY Date ASC")
         goal = cursor.fetchall()[-1][0]
         return goal
 
@@ -344,7 +345,7 @@ def print_daily_log(day):
             console = Console()
             console.print(cal_table)
             cals, protein = calc_cals(day)
-            calorie_limit = fetch_goal()
+            calorie_limit = fetch_goal(weekday)
             calories_remaining = int(calorie_limit-cals)
             if calories_remaining >= 0:
                 over_under = 'remaining'
