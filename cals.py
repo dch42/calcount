@@ -18,7 +18,7 @@ time = datetime.now().time().strftime('%H:%M:%S')
 ERROR = '\033[91m[ERROR]\033[00m'
 
 
-db = sqlite3.connect(f"{home}/.calorie_log.db")
+db = sqlite3.connect(f"{home}/.7calorie_log.db")
 cursor = db.cursor()
 
 
@@ -68,8 +68,6 @@ class Entry:
     -------
     add(item):
         Adds item to content list
-    commit_profile():
-        Commits profile entry to db
     """
 
     def __init__(self):
@@ -78,17 +76,6 @@ class Entry:
     def add(self, item):
         """Add item to entry content array"""
         self.content.append(item)
-
-    def commit_profile(self):
-        """Commit calorie goal info to db"""
-        entry = []
-        for item in self.content:
-            entry.append(item)
-        entry = append_timestamp(self.content)
-        with db:
-            create_table('profile_table')
-            cursor.executemany(
-                "INSERT INTO profile_table VALUES (?,?,?,?,?,?,?,?,?,?)", (entry, ))
 
 
 class CalEntry(Entry):
@@ -138,7 +125,7 @@ class CalEntry(Entry):
 
 class WeightEntry(Entry):
     """
-    Entry subclass to represent a weight data to be added to db
+    Entry subclass to represent weight data to be added to db
     ...
     Methods
     -------
@@ -163,6 +150,32 @@ class WeightEntry(Entry):
             cursor.executemany(
                 "INSERT INTO weight_table VALUES (?,?,?)", (entry, ))
             db.commit()
+
+
+class ProfileEntry(Entry):
+    """
+    Entry subclass to represent calorie goal info to be added to db
+    ...
+    Methods
+    -------
+    validate():
+        Validate profile data for addition to table
+    commit_weight():
+        Commits goal cals entry to db
+    """
+
+    def validate(self):
+        """Validate weight log entry for addition to table"""
+        assert len(self.content) == 10
+
+    def commit_profile(self):
+        """Commit calorie goal info to db"""
+        entry = append_timestamp(self.content)
+        self.validate()
+        with db:
+            create_table('profile_table')
+            cursor.executemany(
+                "INSERT INTO profile_table VALUES (?,?,?,?,?,?,?,?,?,?)", (entry, ))
 
 
 class Profile:
@@ -542,7 +555,7 @@ if __name__ == '__main__':
         logo()
         user_data = get_profile()
         profile = Profile(*user_data)
-        record = Entry()
+        record = ProfileEntry()
         if args.z:
             diet = ZigZag(profile.tdee, profile.lose)
             cal_arr = diet.calc_zigzag()
