@@ -84,8 +84,7 @@ class Entry:
         entry = []
         for item in self.content:
             entry.append(item)
-        for item in time, date:
-            entry.append(item)
+        entry = append_timestamp(self.content)
         with db:
             create_table('profile_table')
             cursor.executemany(
@@ -118,12 +117,11 @@ class CalEntry(Entry):
     def commit_cals(self):
         """Commit caloric intake entry to db"""
         self.validate()
-        for item in time, date:
-            self.content.append(item)
+        entry = append_timestamp(self.content)
         with db:
             create_table('calorie_table')
             cursor.executemany("INSERT INTO calorie_table VALUES (?,?,?,?,?)",
-                               (self.content, ))
+                               (entry, ))
             db.commit()
 
     def remove_cals(self):
@@ -159,12 +157,11 @@ class WeightEntry(Entry):
     def commit_weight(self):
         """Commit weight data to db"""
         self.validate()
-        for item in time, date:
-            self.content.append(item)
+        entry = append_timestamp(self.content)
         with db:
             create_table('weight_table')
             cursor.executemany(
-                "INSERT INTO weight_table VALUES (?,?,?)", (self.content, ))
+                "INSERT INTO weight_table VALUES (?,?,?)", (entry, ))
             db.commit()
 
 
@@ -487,11 +484,18 @@ def get_profile():
     height, weight = to_metric(height, weight)
 
     # enter initial weight data to db
-    record = Entry()
+    record = WeightEntry()
     record.add(weight)
     record.commit_weight()
 
     return age, sex, height, weight, lose
+
+
+def append_timestamp(arr):
+    """Append time and date to array"""
+    for item in time, date:
+        arr.append(item)
+    return arr
 
 
 def validate_input(prompt, dtype):
