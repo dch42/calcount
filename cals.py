@@ -144,6 +144,8 @@ class WeightEntry(Entry):
     ...
     Methods
     -------
+    validate():
+        Validate weight log entry for addition to table
     commit_weight():
         Commits weight entry to db
     """
