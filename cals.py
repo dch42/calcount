@@ -68,10 +68,6 @@ class Entry:
     -------
     add(item):
         Adds item to content list
-    commit_cals():
-        Commits caloric intake entry to db
-    remove_cals():
-        Removes caloric entry from db
     commit_weight():
         Commits weight entry to db
     commit_profile():
@@ -84,44 +80,6 @@ class Entry:
     def add(self, item):
         """Add item to entry content array"""
         self.content.append(item)
-
-    def validate_entry(self):
-        """Validate and build caloric log entry for addition or removal"""
-        try:
-            cal_entry = [
-                str(self.content[0]),
-                int(self.content[1]),
-                int(self.content[2]),
-                str(time),
-                str(date)
-            ]
-            return cal_entry
-        except ValueError as err:
-            option = 'a' if args.a else 'r'
-            print(
-                f"{ERROR} Usage: cals -{option} 'Protein Bar' 190 16\n\
-                    {err}")
-            sys.exit(1)
-
-    def commit_cals(self):
-        """Commit caloric intake entry to db"""
-        entry = self.validate_entry()
-        with db:
-            create_table('calorie_table')
-            cursor.executemany("INSERT INTO calorie_table VALUES (?,?,?,?,?)",
-                               (entry, ))
-            db.commit()
-
-    def remove_cals(self):
-        """Remove caloric intake entry from db"""
-        entry = self.validate_entry()
-        with db:
-            try:
-                cursor.execute(
-                    f"DELETE FROM calorie_table WHERE Date='{date}' AND Food_Name='{entry[0]}' \
-                    AND Calories='{entry[1]}' AND Protein='{entry[2]}'")
-            except sqlite3.OperationalError as err:
-                print(f"{ERROR} {err}")
 
     def commit_weight(self):
         """Commit weight data to db"""
@@ -146,6 +104,52 @@ class Entry:
             create_table('profile_table')
             cursor.executemany(
                 "INSERT INTO profile_table VALUES (?,?,?,?,?,?,?,?,?,?)", (entry, ))
+
+
+class CalEntry(Entry):
+    """
+    Entry subclass to represent caloric log entry
+    ...
+    Methods
+    -------
+    validate():
+        Validate caloric log entry for addition or removal
+    commit_cals():
+        Commits caloric intake entry to db
+    remove_cals():
+        Removes caloric entry from db
+    """
+
+    def validate(self):
+        """Validate caloric log entry for addition or removal"""
+        option = 'a' if args.a else 'r'
+        usage = f"Usage: cals -{option} 'protein bar' 200 20"
+        assert len(self.content) == 3, f"{usage}"
+        for n in 1, 2:
+            self.content[n] = int(self.content[n])
+            assert type(self.content[n]) == int, f"{usage}"
+
+    def commit_cals(self):
+        """Commit caloric intake entry to db"""
+        self.validate()
+        for item in time, date:
+            self.content.append(item)
+        with db:
+            create_table('calorie_table')
+            cursor.executemany("INSERT INTO calorie_table VALUES (?,?,?,?,?)",
+                               (self.content, ))
+            db.commit()
+
+    def remove_cals(self):
+        """Remove caloric intake entry from db"""
+        self.validate()
+        with db:
+            try:
+                cursor.execute(
+                    f"DELETE FROM calorie_table WHERE Date='{date}' AND Food_Name='{self.content[0]}' \
+                    AND Calories='{self.content[1]}' AND Protein='{self.content[2]}'")
+            except sqlite3.OperationalError as err:
+                print(f"{ERROR} {err}")
 
 
 class Profile:
@@ -531,7 +535,7 @@ if __name__ == '__main__':
         record.commit_profile()
     if args.a or args.r:
         print_cal_plan()
-        record = Entry()
+        record = CalEntry()
         food = args.a if args.a else args.r
         for arg in food:
             record.add(arg)
