@@ -297,9 +297,9 @@ class ZigZag(Diet):
             else:
                 weekly_plan[i] *= 1.25
             if i in (1, 2):
-                weekly_plan[i] *= .75
+                weekly_plan[i] *= .9
             if i in (3, 4):
-                weekly_plan[i] *= 1.25
+                weekly_plan[i] *= 1.1
         return weekly_plan
 
 # caloric logs
