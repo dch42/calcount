@@ -377,7 +377,7 @@ def print_daily_log(day):
             console.print(cal_table)
             cals, protein = calc_cals(day)
             calorie_limit = fetch_goal(weekday)
-            calories_remaining = int(calorie_limit-cals)
+            calories_remaining = round(calorie_limit-cals)
             if calories_remaining >= 0:
                 over_under = 'remaining'
             else:
