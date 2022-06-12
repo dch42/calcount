@@ -173,6 +173,7 @@ class ProfileEntry(Entry):
         entry = append_timestamp(self.content)
         self.validate()
         with db:
+            cursor.execute("DROP TABLE IF EXISTS profile_table")
             create_table('profile_table')
             cursor.executemany(
                 "INSERT INTO profile_table VALUES (?,?,?,?,?,?,?,?,?,?)", (entry, ))
@@ -538,7 +539,7 @@ def print_cal_plan():
         table.add_column(f"{col}", justify="right", no_wrap=True)
     with db:
         cursor.execute(
-            f"SELECT Mon, Tue, Wed, Thu, Fri, Sat, Sun FROM profile_table ORDER BY Date ASC")
+            f"SELECT Mon, Tue, Wed, Thu, Fri, Sat, Sun FROM profile_table ORDER BY Date DESC")
         plan = list(cursor.fetchall()[0])
         for i in range(len(plan)):
             plan[i] = round(plan[i])
