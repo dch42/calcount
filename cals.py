@@ -80,20 +80,20 @@ class Entry:
 
 class CalEntry(Entry):
     """
-    Entry subclass to represent caloric log entry
+    Entry subclass to represent caloric log record
     ...
     Methods
     -------
     validate():
-        Validate caloric log entry for addition or removal
+        Validate caloric log record for addition or removal
     commit_cals():
-        Commits caloric intake entry to db
+        Commits caloric intake record to db
     remove_cals():
-        Removes caloric entry from db
+        Removes caloric record from db
     """
 
     def validate(self):
-        """Validate caloric log entry for addition or removal"""
+        """Validate caloric log record for addition or removal"""
         option = 'a' if args.a else 'r'
         usage = f"Usage: cals -{option} 'protein bar' 200 20"
         assert len(self.content) == 3, f"{usage}"
@@ -102,17 +102,17 @@ class CalEntry(Entry):
             assert type(self.content[n]) == int, f"{usage}"
 
     def commit_cals(self):
-        """Commit caloric intake entry to db"""
+        """Commit caloric intake record to db"""
         self.validate()
-        entry = append_timestamp(self.content)
+        record = append_timestamp(self.content)
         with db:
-            create_table('calorie_table')
+            create_table(db, 'calorie_table')
             cursor.executemany("INSERT INTO calorie_table VALUES (?,?,?,?,?)",
-                               (entry, ))
+                               (record, ))
             db.commit()
 
     def remove_cals(self):
-        """Remove caloric intake entry from db"""
+        """Remove caloric intake record from db"""
         self.validate()
         with db:
             try:
@@ -144,11 +144,11 @@ class WeightEntry(Entry):
     def commit_weight(self):
         """Commit weight data to db"""
         self.validate()
-        entry = append_timestamp(self.content)
+        record = append_timestamp(self.content)
         with db:
-            create_table('weight_table')
+            create_table(db, 'weight_table')
             cursor.executemany(
-                "INSERT INTO weight_table VALUES (?,?,?)", (entry, ))
+                "INSERT INTO weight_table VALUES (?,?,?)", (record, ))
             db.commit()
 
 
@@ -160,8 +160,8 @@ class ProfileEntry(Entry):
     -------
     validate():
         Validate profile data for addition to table
-    commit_weight():
-        Commits goal cals entry to db
+    commit_profile():
+        Commit profile record to db
     """
 
     def validate(self):
@@ -170,13 +170,13 @@ class ProfileEntry(Entry):
 
     def commit_profile(self):
         """Commit calorie goal info to db"""
-        entry = append_timestamp(self.content)
+        record = append_timestamp(self.content)
         self.validate()
         with db:
             cursor.execute("DROP TABLE IF EXISTS profile_table")
-            create_table('profile_table')
+            create_table(db, 'profile_table')
             cursor.executemany(
-                "INSERT INTO profile_table VALUES (?,?,?,?,?,?,?,?,?,?)", (entry, ))
+                "INSERT INTO profile_table VALUES (?,?,?,?,?,?,?,?,?,?)", (record, ))
 
 
 class Profile:
@@ -430,7 +430,7 @@ def calc_weight_loss():
 # db
 
 
-def create_table(table):
+def create_table(db, table):
     """Create $table if not exists"""
     with db:
         if table == 'calorie_table':
