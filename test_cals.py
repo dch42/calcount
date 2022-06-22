@@ -9,19 +9,34 @@ import sqlite3
 def memory_db():
     """Fixture to set up an in-memory db for testing"""
     db = sqlite3.connect(':memory:')
-    yield db
+    cursor = db.cursor()
+    yield db, cursor
 
 
 def test_create_table(memory_db):
     """Test table creation"""
-    db = memory_db
-    tables = ['calorie_table', 'weight_table', 'profile_table']
-    for table in tables:
-        cals.create_table(db, table)
+    db, cursor = memory_db
+    tables = ['calorie_table', 'weight_table',
+              'profile_table']
+    bogus = [42, 'nope', (0, 1, 2)]
+
+    def create_table(table):
+        """Create table and return results"""
+        cals.create_table(db, cursor, f'{table}')
         with db:
-            check = cals.cursor.execute(
-                f"""SELECT * FROM {table}""").fetchall()
-            assert check != []
+            check = list(cursor.execute(
+                f"""SELECT * FROM {table}""").fetchall())
+        return check
+
+    for table in tables:
+        check = create_table(table)
+        assert check == []
+    for table in bogus:
+        try:
+            check = create_table(table)
+        except sqlite3.OperationalError:
+            check = 'failed'
+        assert check == 'failed'
 
 
 def test_to_metric():
