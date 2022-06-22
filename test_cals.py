@@ -1,6 +1,27 @@
 """Tests for cals.py"""
+import pytest
 from io import StringIO
 import cals
+import sqlite3
+
+
+@pytest.fixture
+def memory_db():
+    """Fixture to set up an in-memory db for testing"""
+    db = sqlite3.connect(':memory:')
+    yield db
+
+
+def test_create_table(memory_db):
+    """Test table creation"""
+    db = memory_db
+    tables = ['calorie_table', 'weight_table', 'profile_table']
+    for table in tables:
+        cals.create_table(db, table)
+        with db:
+            check = cals.cursor.execute(
+                f"""SELECT * FROM {table}""").fetchall()
+            assert check != []
 
 
 def test_to_metric():
