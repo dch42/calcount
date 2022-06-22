@@ -106,7 +106,7 @@ class CalEntry(Entry):
         self.validate()
         record = append_timestamp(self.content)
         with db:
-            create_table(db, 'calorie_table')
+            create_table(db, cursor, 'calorie_table')
             cursor.executemany("INSERT INTO calorie_table VALUES (?,?,?,?,?)",
                                (record, ))
             db.commit()
@@ -146,7 +146,7 @@ class WeightEntry(Entry):
         self.validate()
         record = append_timestamp(self.content)
         with db:
-            create_table(db, 'weight_table')
+            create_table(db, cursor, 'weight_table')
             cursor.executemany(
                 "INSERT INTO weight_table VALUES (?,?,?)", (record, ))
             db.commit()
@@ -174,7 +174,7 @@ class ProfileEntry(Entry):
         self.validate()
         with db:
             cursor.execute("DROP TABLE IF EXISTS profile_table")
-            create_table(db, 'profile_table')
+            create_table(db, cursor, 'profile_table')
             cursor.executemany(
                 "INSERT INTO profile_table VALUES (?,?,?,?,?,?,?,?,?,?)", (record, ))
 
@@ -365,7 +365,7 @@ def print_daily_log(day):
             for row in rows[:-1]:
                 cal_table.add_row(f"{row[0]}", f"{row[1]}kcal", f"{row[2]}g")
             try:
-                # style entry if added
+                # style entry if just added
                 cal_table.add_row(
                     f"{'+' if args.a else ''}{rows[-1][0]}", f"{rows[-1][1]}kcal",
                     f"{rows[-1][2]}g", style=f"{'green' if args.a else ''}")
@@ -430,7 +430,7 @@ def calc_weight_loss():
 # db
 
 
-def create_table(db, table):
+def create_table(db, cursor, table):
     """Create $table if not exists"""
     with db:
         if table == 'calorie_table':
