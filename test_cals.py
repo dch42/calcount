@@ -3,6 +3,7 @@ import pytest
 from io import StringIO
 import cals
 import sqlite3
+import datetime
 
 
 @pytest.fixture
@@ -35,8 +36,21 @@ def test_create_table(memory_db):
         try:
             check = create_table(table)
         except sqlite3.OperationalError:
-            check = 'failed'
-        assert check == 'failed'
+            check = 'fail'
+        assert check == 'fail'
+
+
+def test_append_timestamp():
+    def append_timestamp(arr):
+        arr = cals.append_timestamp(arr)
+        return arr
+    arrs = [[0], [0, 2], ['str', 4, ['nest']]]
+    for init_arr in arrs:
+        init_len = len(init_arr)
+        arr = append_timestamp(init_arr)
+        assert len(arr) == init_len + 2
+        assert type(arr[-2]) is str
+        assert type(arr[-1]) is datetime.date
 
 
 def test_to_metric():
