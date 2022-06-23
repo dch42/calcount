@@ -8,10 +8,20 @@ import datetime
 
 @pytest.fixture
 def memory_db():
-    """Fixture to set up an in-memory db for testing"""
+    """Fixture to set up an in-memory test db"""
     db = sqlite3.connect(':memory:')
     cursor = db.cursor()
     yield db, cursor
+
+
+def test_Entry():
+    data = ['a', 1, (1, 2), -1, .5]
+    test = cals.Entry()
+    for item in data:
+        test.add(item)
+    assert len(test.content) == len(data)
+    for i in range(0, len(data)-1):
+        assert test.content[i] == data[i]
 
 
 def test_create_table(memory_db):
