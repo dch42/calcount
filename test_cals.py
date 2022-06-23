@@ -15,6 +15,7 @@ def memory_db():
 
 
 def test_Entry():
+    """Verify that Entry class and add method behave as expected"""
     data = ['a', 1, (1, 2), -1, .5]
     test = cals.Entry()
     for item in data:
@@ -51,6 +52,7 @@ def test_create_table(memory_db):
 
 
 def test_append_timestamp():
+    """Verify that append_timestamp appends as expected to array"""
     def append_timestamp(arr):
         arr = cals.append_timestamp(arr)
         return arr
