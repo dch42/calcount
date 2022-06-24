@@ -38,7 +38,26 @@ def test_CalEntry():
     data = [['egg', 60, 6], [-2, -1, -0]]
     for i in range(len(data)):
         test_add(data[i])
-    # TODO test validate method
+    # TODO test validate method, commit, rm
+
+
+def test_WeightEntry(memory_db):
+    """Test class WeightEntry"""
+    def test_add(data):
+        """Add data to test obj and verify"""
+        test = cals.WeightEntry()
+        test.add(data)
+        assert data == test.content[0]
+        try:
+            test.validate()
+        except ValueError:
+            pass
+            check = 'fail' if type(data) is str else '?'
+            assert check == 'fail'
+
+    data = [130, -333, '', 'fish']
+    for i in range(len(data)):
+        test_add(data[i])
 
 
 def test_create_table(memory_db):
