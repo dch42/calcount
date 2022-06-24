@@ -25,6 +25,22 @@ def test_Entry():
         assert test.content[i] == data[i]
 
 
+def test_CalEntry():
+    """Test class CalEntry"""
+    def test_add(data):
+        """Add data to test obj and verify"""
+        test = cals.CalEntry()
+        i = 0
+        for item in data:
+            test.add(item)
+            assert item == test.content[i]
+            i += 1
+    data = [['egg', 60, 6], [-2, -1, -0]]
+    for i in range(len(data)):
+        test_add(data[i])
+    # TODO test validate method
+
+
 def test_create_table(memory_db):
     """Test table creation"""
     db, cursor = memory_db
