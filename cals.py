@@ -6,7 +6,7 @@ import sys
 from datetime import datetime
 import argparse
 import sqlite3
-#import pyfiglet
+import pyfiglet
 import pandas as pd
 from rich.console import Console
 from rich.table import Table
@@ -18,7 +18,7 @@ time = datetime.now().time().strftime('%H:%M:%S')
 ERROR = '\033[91m[ERROR]\033[00m'
 
 
-db = sqlite3.connect(f"{home}/.calorie_log.db")
+db = sqlite3.connect(f"{home}/.7calorie_log.db")
 cursor = db.cursor()
 
 
@@ -80,20 +80,20 @@ class Entry:
 
 class CalEntry(Entry):
     """
-    Entry subclass to represent caloric log record
+    Entry subclass to represent caloric log entry
     ...
     Methods
     -------
     validate():
-        Validate caloric log record for addition or removal
+        Validate caloric log entry for addition or removal
     commit_cals():
-        Commits caloric intake record to db
+        Commits caloric intake entry to db
     remove_cals():
-        Removes caloric record from db
+        Removes caloric entry from db
     """
 
     def validate(self):
-        """Validate caloric log record for addition or removal"""
+        """Validate caloric log entry for addition or removal"""
         option = 'a' if args.a else 'r'
         usage = f"Usage: cals -{option} 'protein bar' 200 20"
         assert len(self.content) == 3, f"{usage}"
@@ -102,17 +102,17 @@ class CalEntry(Entry):
             assert type(self.content[n]) == int, f"{usage}"
 
     def commit_cals(self):
-        """Commit caloric intake record to db"""
+        """Commit caloric intake entry to db"""
         self.validate()
-        record = append_timestamp(self.content)
+        entry = append_timestamp(self.content)
         with db:
-            create_table(db, cursor, 'calorie_table')
+            create_table(db, 'calorie_table')
             cursor.executemany("INSERT INTO calorie_table VALUES (?,?,?,?,?)",
-                               (record, ))
+                               (entry, ))
             db.commit()
 
     def remove_cals(self):
-        """Remove caloric intake record from db"""
+        """Remove caloric intake entry from db"""
         self.validate()
         with db:
             try:
@@ -144,11 +144,11 @@ class WeightEntry(Entry):
     def commit_weight(self):
         """Commit weight data to db"""
         self.validate()
-        record = append_timestamp(self.content)
+        entry = append_timestamp(self.content)
         with db:
-            create_table(db, cursor, 'weight_table')
+            create_table(db, 'weight_table')
             cursor.executemany(
-                "INSERT INTO weight_table VALUES (?,?,?)", (record, ))
+                "INSERT INTO weight_table VALUES (?,?,?)", (entry, ))
             db.commit()
 
 
@@ -160,8 +160,8 @@ class ProfileEntry(Entry):
     -------
     validate():
         Validate profile data for addition to table
-    commit_profile():
-        Commit profile record to db
+    commit_weight():
+        Commits goal cals entry to db
     """
 
     def validate(self):
@@ -170,13 +170,13 @@ class ProfileEntry(Entry):
 
     def commit_profile(self):
         """Commit calorie goal info to db"""
-        record = append_timestamp(self.content)
+        entry = append_timestamp(self.content)
         self.validate()
         with db:
             cursor.execute("DROP TABLE IF EXISTS profile_table")
-            create_table(db, cursor, 'profile_table')
+            create_table(db, 'profile_table')
             cursor.executemany(
-                "INSERT INTO profile_table VALUES (?,?,?,?,?,?,?,?,?,?)", (record, ))
+                "INSERT INTO profile_table VALUES (?,?,?,?,?,?,?,?,?,?)", (entry, ))
 
 
 class Profile:
@@ -365,7 +365,7 @@ def print_daily_log(day):
             for row in rows[:-1]:
                 cal_table.add_row(f"{row[0]}", f"{row[1]}kcal", f"{row[2]}g")
             try:
-                # style entry if just added
+                # style entry if added
                 cal_table.add_row(
                     f"{'+' if args.a else ''}{rows[-1][0]}", f"{rows[-1][1]}kcal",
                     f"{rows[-1][2]}g", style=f"{'green' if args.a else ''}")
@@ -430,7 +430,7 @@ def calc_weight_loss():
 # db
 
 
-def create_table(db, cursor, table):
+def create_table(db, table):
     """Create $table if not exists"""
     with db:
         if table == 'calorie_table':
