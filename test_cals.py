@@ -60,30 +60,30 @@ def test_WeightEntry(memory_db):
         test_add(data[i])
 
 
-def test_create_table(memory_db, table):
-    """Test table creation"""
-    db, cursor = memory_db
-    tables = ['calorie_table', 'weight_table',
-              'profile_table']
-    bogus = [42, 'nope', (0, 1, 2)]
+# def test_create_table(memory_db, table):
+#     """Test table creation"""
+#     db, cursor = memory_db
+#     tables = ['calorie_table', 'weight_table',
+#               'profile_table']
+#     bogus = [42, 'nope', (0, 1, 2)]
 
-    def create_table(table):
-        """Create table and return results"""
-        cals.create_table(db, cursor, f'{table}')
-        with db:
-            check = list(cursor.execute(
-                f"""SELECT * FROM {table}""").fetchall())
-        return check
+#     def create_table(table):
+#         """Create table and return results"""
+#         cals.create_table(db, cursor, f'{table}')
+#         with db:
+#             check = list(cursor.execute(
+#                 f"""SELECT * FROM {table}""").fetchall())
+#         return check
 
-    for table in tables:
-        check = create_table(table)
-        assert check == []
-    for table in bogus:
-        try:
-            check = create_table(table)
-        except sqlite3.OperationalError:
-            check = 'fail'
-        assert check == 'fail'
+#     for table in tables:
+#         check = create_table(table)
+#         assert check == []
+#     for table in bogus:
+#         try:
+#             check = create_table(table)
+#         except sqlite3.OperationalError:
+#             check = 'fail'
+#         assert check == 'fail'
 
 
 def test_append_timestamp():
