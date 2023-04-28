@@ -60,7 +60,7 @@ def test_WeightEntry(memory_db):
         test_add(data[i])
 
 
-def test_create_table(memory_db):
+def test_create_table(memory_db, table):
     """Test table creation"""
     db, cursor = memory_db
     tables = ['calorie_table', 'weight_table',
